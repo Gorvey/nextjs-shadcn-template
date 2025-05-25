@@ -1,0 +1,210 @@
+[
+  {
+    "object": "page",
+    "id": "1fdd7e88-59e4-800e-844e-e448c732ae08",
+    "created_time": "2025-05-24T14:38:00.000Z",
+    "last_edited_time": "2025-05-25T04:08:00.000Z",
+    "created_by": {
+      "object": "user",
+      "id": "0c7912d5-822f-4a0f-bcff-1b402e8ea9cc"
+    },
+    "last_edited_by": {
+      "object": "user",
+      "id": "0c7912d5-822f-4a0f-bcff-1b402e8ea9cc"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+      "type": "database_id",
+      "database_id": "1fdd7e88-59e4-80c9-9100-e68620f0ce56"
+    },
+    "archived": false,
+    "in_trash": false,
+    "properties": {
+      "付费情况": {
+        "id": "AEqX",
+        "type": "multi_select",
+        "multi_select": [
+          {
+            "id": "ac641a66-e32c-406d-8e81-527dddf68102",
+            "name": "免费",
+            "color": "orange"
+          },
+          {
+            "id": "6af21bcf-61f7-4dad-a475-81da9fd68d93",
+            "name": "付费",
+            "color": "brown"
+          },
+          {
+            "id": "83683ebc-55ac-4b1b-a5cf-ed3ec6b6831c",
+            "name": "免费试用",
+            "color": "red"
+          },
+          {
+            "id": "950b24e2-2bc0-4068-b1fd-474d792c655b",
+            "name": "部分免费",
+            "color": "blue"
+          }
+        ]
+      },
+      "desc": {
+        "id": "NITi",
+        "type": "rich_text",
+        "rich_text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "是一种生活方式",
+              "link": null
+            },
+            "annotations": {
+              "bold": false,
+              "italic": false,
+              "strikethrough": false,
+              "underline": false,
+              "code": false,
+              "color": "default"
+            },
+            "plain_text": "是一种生活方式",
+            "href": null
+          }
+        ]
+      },
+      "服务模式": {
+        "id": "OgeZ",
+        "type": "multi_select",
+        "multi_select": [
+          {
+            "id": "00c75866-e254-4c1c-8c47-62313b229c38",
+            "name": "SaaS",
+            "color": "yellow"
+          }
+        ]
+      },
+      "Github": {
+        "id": "Qtdq",
+        "type": "rich_text",
+        "rich_text": []
+      },
+      "访问限制": {
+        "id": "Zjk%3D",
+        "type": "multi_select",
+        "multi_select": [
+          {
+            "id": "b26b881f-571d-4c43-b928-ca358a375660",
+            "name": "需登录",
+            "color": "purple"
+          },
+          {
+            "id": "d6d6bc84-dd1f-4f54-b702-dd2832d18c5c",
+            "name": "需科学上网",
+            "color": "default"
+          },
+          {
+            "id": "dece61ac-9301-483c-b192-03267e1d2ac6",
+            "name": "需特定软件",
+            "color": "gray"
+          },
+          {
+            "id": "dc0adfc7-8f25-45d0-91d2-fa0dd40e6c0d",
+            "name": "限时免费",
+            "color": "brown"
+          },
+          {
+            "id": "25b1af66-60d0-45b3-b50e-48f68cc1a7af",
+            "name": "需邀请码/申请",
+            "color": "orange"
+          }
+        ]
+      },
+      "运行环境": {
+        "id": "aXZ%3B",
+        "type": "multi_select",
+        "multi_select": [
+          {
+            "id": "a39c5749-9518-4f58-b1ae-6a6402b0bb4e",
+            "name": "桌面应用",
+            "color": "brown"
+          }
+        ]
+      },
+      "分组": {
+        "id": "bMoT",
+        "type": "multi_select",
+        "multi_select": [
+          {
+            "id": "660060f8-671f-4676-9a4a-a7479f096142",
+            "name": "AI工具箱",
+            "color": "yellow"
+          },
+          {
+            "id": "b694d565-8149-491d-b328-af583491e0a0",
+            "name": "娱乐消遣",
+            "color": "brown"
+          }
+        ]
+      },
+      "标签": {
+        "id": "c%3DXr",
+        "type": "multi_select",
+        "multi_select": []
+      },
+      "URL": {
+        "id": "dQ%3Bh",
+        "type": "url",
+        "url": "zhihu.com"
+      },
+      "页面类型": {
+        "id": "vugD",
+        "type": "multi_select",
+        "multi_select": [
+          {
+            "id": "df1aae1c-b89a-4c17-9666-80302e46fe48",
+            "name": "Vue相关",
+            "color": "red"
+          },
+          {
+            "id": "ebc2b517-0b15-41eb-8ae6-6cb2f9a844bb",
+            "name": "UI/UX",
+            "color": "brown"
+          },
+          {
+            "id": "9aabc407-6c8d-4edc-bcca-efb2db54f7e5",
+            "name": "React相关",
+            "color": "pink"
+          }
+        ]
+      },
+      "npm": {
+        "id": "w%3DF%3C",
+        "type": "url",
+        "url": null
+      },
+      "Name": {
+        "id": "title",
+        "type": "title",
+        "title": [
+          {
+            "type": "text",
+            "text": {
+              "content": "知乎",
+              "link": null
+            },
+            "annotations": {
+              "bold": false,
+              "italic": false,
+              "strikethrough": false,
+              "underline": false,
+              "code": false,
+              "color": "default"
+            },
+            "plain_text": "知乎",
+            "href": null
+          }
+        ]
+      }
+    },
+    "url": "https://www.notion.so/1fdd7e8859e4800e844ee448c732ae08",
+    "public_url": "https://coooool.notion.site/1fdd7e8859e4800e844ee448c732ae08"
+  }
+]

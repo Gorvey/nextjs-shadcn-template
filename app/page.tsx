@@ -1,84 +1,105 @@
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{' '}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+'use client'
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
-          Go to nextjs.org →
-        </a>
-        <Button>Click me</Button>
-      </footer>
+import { useState, useEffect } from 'react'
+import type { NotionPage, NotionDatabase } from '@/types/notion'
+import {
+  getDatabaseDetailsFromCache,
+  getPagesFromCache,
+  saveDatabaseDetails,
+  savePages,
+  isWithinCooldownPeriod,
+} from '@/lib/indexdb'
+import { FilterSection } from '@/components/home/FilterSection'
+import { ResourceGrid } from '@/components/home/ResourceGrid'
+
+export default function Home() {
+  const [data, setData] = useState<NotionPage[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('newest')
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // 判断是否在冷却期
+      const cooldown = await isWithinCooldownPeriod()
+      if (cooldown) {
+        // 冷却期内，直接用本地数据
+        const cachedPages = await getPagesFromCache()
+        if (cachedPages !== undefined) {
+          setData(cachedPages)
+          return
+        }
+      }
+
+      // 获取数据库详情
+      const detailsResponse = await fetch('/api/getDatabaseDetails')
+      const detailsResult = await detailsResponse.json()
+
+      if (!detailsResult.success) {
+        throw new Error(detailsResult.error)
+      }
+
+      const details: NotionDatabase = detailsResult.data
+
+      // 获取缓存中的数据库详情
+      const cachedDetails = await getDatabaseDetailsFromCache()
+
+      // 如果缓存为空或者数据库有更新，则重新获取数据
+      if (
+        cachedDetails === undefined ||
+        cachedDetails.last_edited_time !== details.last_edited_time
+      ) {
+        // 保存新的数据库详情
+        await saveDatabaseDetails(details)
+
+        // 获取新的页面数据
+        const pagesResponse = await fetch('/api/getData')
+        const pagesResult = await pagesResponse.json()
+
+        if (!pagesResult.success) {
+          throw new Error(pagesResult.error)
+        }
+
+        // 保存新的页面数据（会自动更新冷却期时间）
+        await savePages(pagesResult.data)
+        setData(pagesResult.data)
+      } else {
+        // 使用缓存的数据
+        const cachedPages = await getPagesFromCache()
+        if (cachedPages !== undefined) {
+          setData(cachedPages)
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '获取数据失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 首次加载时获取数据
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="container mx-auto px-4 py-8">
+        <FilterSection
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          loading={loading}
+          onRefresh={fetchData}
+          error={error}
+        />
+        <ResourceGrid data={data} loading={loading} />
+      </div>
     </div>
   )
 }

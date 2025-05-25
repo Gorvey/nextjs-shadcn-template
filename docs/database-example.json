@@ -1,0 +1,249 @@
+{
+  "object": "database",
+  "id": "1fdd7e88-59e4-80c9-9100-e68620f0ce56",
+  "cover": null,
+  "icon": null,
+  "created_time": "2025-05-24T14:16:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "0c7912d5-822f-4a0f-bcff-1b402e8ea9cc"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "0c7912d5-822f-4a0f-bcff-1b402e8ea9cc"
+  },
+  "last_edited_time": "2025-05-25T05:18:00.000Z",
+  "title": [],
+  "description": [],
+  "is_inline": true,
+  "properties": {
+    "付费情况": {
+      "id": "AEqX",
+      "name": "付费情况",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "ac641a66-e32c-406d-8e81-527dddf68102",
+            "name": "免费",
+            "color": "orange",
+            "description": null
+          },
+          {
+            "id": "6af21bcf-61f7-4dad-a475-81da9fd68d93",
+            "name": "付费",
+            "color": "brown",
+            "description": null
+          },
+          {
+            "id": "83683ebc-55ac-4b1b-a5cf-ed3ec6b6831c",
+            "name": "免费试用",
+            "color": "red",
+            "description": null
+          },
+          {
+            "id": "950b24e2-2bc0-4068-b1fd-474d792c655b",
+            "name": "部分免费",
+            "color": "blue",
+            "description": null
+          }
+        ]
+      }
+    },
+    "desc": {
+      "id": "NITi",
+      "name": "desc",
+      "type": "rich_text",
+      "rich_text": {}
+    },
+    "服务模式": {
+      "id": "OgeZ",
+      "name": "服务模式",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "00c75866-e254-4c1c-8c47-62313b229c38",
+            "name": "SaaS",
+            "color": "yellow",
+            "description": null
+          }
+        ]
+      }
+    },
+    "Github": {
+      "id": "Qtdq",
+      "name": "Github",
+      "type": "url",
+      "url": {}
+    },
+    "访问限制": {
+      "id": "Zjk%3D",
+      "name": "访问限制",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "b26b881f-571d-4c43-b928-ca358a375660",
+            "name": "需登录",
+            "color": "purple",
+            "description": null
+          },
+          {
+            "id": "d6d6bc84-dd1f-4f54-b702-dd2832d18c5c",
+            "name": "需科学上网",
+            "color": "default",
+            "description": null
+          },
+          {
+            "id": "dece61ac-9301-483c-b192-03267e1d2ac6",
+            "name": "需特定软件",
+            "color": "gray",
+            "description": null
+          },
+          {
+            "id": "dc0adfc7-8f25-45d0-91d2-fa0dd40e6c0d",
+            "name": "限时免费",
+            "color": "brown",
+            "description": null
+          },
+          {
+            "id": "25b1af66-60d0-45b3-b50e-48f68cc1a7af",
+            "name": "需邀请码/申请",
+            "color": "orange",
+            "description": null
+          }
+        ]
+      }
+    },
+    "运行环境": {
+      "id": "aXZ%3B",
+      "name": "运行环境",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "a39c5749-9518-4f58-b1ae-6a6402b0bb4e",
+            "name": "桌面应用",
+            "color": "brown",
+            "description": null
+          },
+          {
+            "id": "25ce0458-bba2-4fe8-b6fa-9108a40948da",
+            "name": "web",
+            "color": "blue",
+            "description": null
+          }
+        ]
+      }
+    },
+    "分组": {
+      "id": "bMoT",
+      "name": "分组",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "660060f8-671f-4676-9a4a-a7479f096142",
+            "name": "AI工具箱",
+            "color": "yellow",
+            "description": null
+          },
+          {
+            "id": "b694d565-8149-491d-b328-af583491e0a0",
+            "name": "娱乐消遣",
+            "color": "brown",
+            "description": null
+          }
+        ]
+      }
+    },
+    "标签": {
+      "id": "c%3DXr",
+      "name": "标签",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "0accf1af-2e14-4673-8d8c-3fd9439eff89",
+            "name": "我喜欢",
+            "color": "gray",
+            "description": null
+          }
+        ]
+      }
+    },
+    "URL": {
+      "id": "dQ%3Bh",
+      "name": "URL",
+      "type": "url",
+      "url": {}
+    },
+    "页面类型": {
+      "id": "vugD",
+      "name": "页面类型",
+      "type": "multi_select",
+      "multi_select": {
+        "options": [
+          {
+            "id": "93ca71a6-ba23-49c8-8790-7d9ceba272e1",
+            "name": "桌面应用",
+            "color": "green",
+            "description": null
+          },
+          {
+            "id": "8f16940d-727a-4524-b645-a56ee32c08c6",
+            "name": "web应用",
+            "color": "gray",
+            "description": null
+          },
+          {
+            "id": "df1aae1c-b89a-4c17-9666-80302e46fe48",
+            "name": "Vue相关",
+            "color": "red",
+            "description": null
+          },
+          {
+            "id": "ebc2b517-0b15-41eb-8ae6-6cb2f9a844bb",
+            "name": "UI/UX",
+            "color": "brown",
+            "description": null
+          },
+          {
+            "id": "9aabc407-6c8d-4edc-bcca-efb2db54f7e5",
+            "name": "React相关",
+            "color": "pink",
+            "description": null
+          },
+          {
+            "id": "b9993860-5324-4ad6-8010-7f45c05af94c",
+            "name": "论坛",
+            "color": "yellow",
+            "description": null
+          }
+        ]
+      }
+    },
+    "npm": {
+      "id": "w%3DF%3C",
+      "name": "npm",
+      "type": "url",
+      "url": {}
+    },
+    "Name": {
+      "id": "title",
+      "name": "Name",
+      "type": "title",
+      "title": {}
+    }
+  },
+  "parent": {
+    "type": "page_id",
+    "page_id": "1fdd7e88-59e4-80ff-bd9d-dc044f71649c"
+  },
+  "url": "https://www.notion.so/1fdd7e8859e480c99100e68620f0ce56",
+  "public_url": "https://coooool.notion.site/1fdd7e8859e480c99100e68620f0ce56",
+  "archived": false,
+  "in_trash": false,
+  "request_id": "18ca6872-27ef-4125-850f-23ca25510857"
+}
