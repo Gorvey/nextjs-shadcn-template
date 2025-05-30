@@ -16,18 +16,16 @@ export async function POST(request: Request) {
 
     // 提取元数据
     const metadata = {
+      icon:
+        $('link[rel="apple-touch-icon"]').attr('href') ||
+        $('link[rel="icon"]').attr('href') ||
+        $('link[rel="shortcut icon"]').attr('href') ||
+        '',
       title: $('title').text() || $('meta[property="og:title"]').attr('content') || '',
       description:
         $('meta[name="description"]').attr('content') ||
         $('meta[property="og:description"]').attr('content') ||
         '',
-      og: {
-        title: $('meta[property="og:title"]').attr('content') || '',
-        description: $('meta[property="og:description"]').attr('content') || '',
-        image: $('meta[property="og:image"]').attr('content') || '',
-        url: $('meta[property="og:url"]').attr('content') || '',
-        type: $('meta[property="og:type"]').attr('content') || '',
-      },
     }
 
     return NextResponse.json({ success: true, data: metadata })

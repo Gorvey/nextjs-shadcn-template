@@ -23,6 +23,8 @@ export default function UploadPage() {
   const [fetchingMeta, setFetchingMeta] = useState(false)
   const [iconUrl, setIconUrl] = useState<string>('')
   const [coverUrl, setCoverUrl] = useState<string>('')
+  const [iconActiveTab, setIconActiveTab] = useState('upload')
+  const [coverActiveTab, setCoverActiveTab] = useState('upload')
   const [previewData, setPreviewData] = useState<NotionPage>({
     id: 'preview',
     created_time: new Date().toISOString(),
@@ -41,6 +43,7 @@ export default function UploadPage() {
 
     Object.entries(data).forEach(([key, value]) => {
       if (!value) return // 跳过空值
+      if (key === 'icon' || key === 'cover') return // 跳过 icon 和 cover
 
       const propertyType = databaseDetails?.properties[key]?.type
 
@@ -85,28 +88,32 @@ export default function UploadPage() {
             ],
           }
           break
+        case 'select':
+          properties[key] = {
+            select: {
+              name: value as string,
+            },
+          }
+          break
+        case 'number':
+          properties[key] = {
+            number: Number(value),
+          }
+          break
+        case 'checkbox':
+          properties[key] = {
+            checkbox: Boolean(value),
+          }
+          break
+        case 'date':
+          properties[key] = {
+            date: {
+              start: value as string,
+            },
+          }
+          break
       }
     })
-
-    // 添加图标属性
-    if (iconUrl) {
-      properties.icon = {
-        type: 'external',
-        external: {
-          url: iconUrl,
-        },
-      }
-    }
-
-    // 添加封面属性
-    if (coverUrl) {
-      properties.cover = {
-        type: 'external',
-        external: {
-          url: coverUrl,
-        },
-      }
-    }
 
     return properties
   }
@@ -114,7 +121,14 @@ export default function UploadPage() {
   useEffect(() => {
     const fetchDatabaseDetails = async () => {
       try {
-        const details = await getDatabaseDetailsFromCache()
+        const response = await fetch('/api/getDatabaseDetails')
+        const result = await response.json()
+
+        if (!result.success) {
+          throw new Error(result.error)
+        }
+
+        const details = result.data
         if (details) {
           setDatabaseDetails(details)
           // 初始化表单数据
@@ -203,12 +217,38 @@ export default function UploadPage() {
       // 格式化 Notion 属性
       const notionProperties = formatNotionProperties(formData)
 
+      // 构建请求体
+      const requestBody = {
+        parent: {
+          database_id: databaseDetails?.id,
+        },
+        properties: notionProperties,
+        icon: iconUrl
+          ? {
+              type: 'external',
+              external: {
+                url: iconUrl,
+              },
+            }
+          : undefined,
+        cover: coverUrl
+          ? {
+              type: 'external',
+              external: {
+                url: coverUrl,
+              },
+            }
+          : undefined,
+      }
+
+      console.log('请求体:', JSON.stringify(requestBody, null, 2))
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(notionProperties),
+        body: JSON.stringify(requestBody),
       })
 
       const result = await response.json()
@@ -224,7 +264,10 @@ export default function UploadPage() {
         initialFormData[key] = ''
       })
       setFormData(initialFormData)
+      setIconUrl('')
+      setCoverUrl('')
     } catch (err) {
+      console.error('提交失败:', err)
       setError(err instanceof Error ? err.message : '提交失败')
     } finally {
       setSubmitting(false)
@@ -262,6 +305,11 @@ export default function UploadPage() {
         if (descKey) {
           handleInputChange(descKey, data.description)
         }
+      }
+
+      // 设置图标 URL
+      if (data.icon) {
+        setIconUrl(data.icon)
       }
     } catch (error) {
       console.error('获取元数据失败:', error)
@@ -322,8 +370,21 @@ export default function UploadPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <ImageUpload onImageUploaded={setIconUrl} />
-            <ImageUpload onImageUploaded={setCoverUrl} className="mt-4" />
+            <ImageUpload
+              onImageUploaded={setIconUrl}
+              label="图标"
+              previewUrl={iconUrl}
+              activeTab={iconActiveTab}
+              setActiveTab={setIconActiveTab}
+            />
+            <ImageUpload
+              onImageUploaded={setCoverUrl}
+              label="封面"
+              previewUrl={coverUrl}
+              className="mt-4"
+              activeTab={coverActiveTab}
+              setActiveTab={setCoverActiveTab}
+            />
             {Object.entries(databaseDetails.properties)
               .filter(
                 ([_, property]) =>

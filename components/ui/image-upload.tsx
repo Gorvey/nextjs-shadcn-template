@@ -1,29 +1,38 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void
   className?: string
+  label?: string
+  previewUrl?: string
+  activeTab?: string
+  setActiveTab?: (tab: string) => void
 }
 
-export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
+export function ImageUpload({
+  onImageUploaded,
+  className,
+  label = '图标',
+  previewUrl,
+  activeTab,
+  setActiveTab,
+}: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
-  console.log('isUploading', isUploading)
   const [imageUrl, setImageUrl] = useState('')
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (previewUrl) {
+      setImageUrl(previewUrl)
+      setActiveTab?.('url')
+    }
+  }, [previewUrl, setActiveTab])
 
   const handleFileUpload = async (file: File) => {
     if (!file) return
@@ -41,7 +50,7 @@ export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
       const data = await response.json()
       if (data.url) {
         onImageUploaded(data.url)
-        setIsDialogOpen(false)
+        setImageUrl(data.url)
       }
     } catch (error) {
       console.error('上传图片失败:', error)
@@ -51,6 +60,8 @@ export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
   }
 
   const handlePaste = async (e: React.ClipboardEvent) => {
+    e.stopPropagation()
+
     const items = e.clipboardData?.items
     if (!items) return
 
@@ -71,10 +82,28 @@ export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
     }
   }
 
-  const handleUrlSubmit = () => {
-    if (imageUrl) {
-      onImageUploaded(imageUrl)
-      setIsDialogOpen(false)
+  const handleUrlSubmit = async () => {
+    if (!imageUrl) return
+    setIsUploading(true)
+
+    try {
+      const response = await fetch('/api/upload-from-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: imageUrl }),
+      })
+
+      const data = await response.json()
+      if (data.url) {
+        onImageUploaded(data.url)
+        setImageUrl(data.url)
+      }
+    } catch (error) {
+      console.error('转存图片失败:', error)
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -91,19 +120,11 @@ export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
   }
 
   return (
-    <div className={cn('space-y-2', className)} onPaste={handlePaste}>
-      <Label className="text-sm">图标</Label>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button type="button" variant="outline" className="w-full">
-            设置图标
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>上传图标</DialogTitle>
-          </DialogHeader>
-          <Tabs defaultValue="upload" className="w-full">
+    <div className={cn('space-y-4', className)}>
+      <Label className="text-sm">{label}</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="upload">本地上传</TabsTrigger>
               <TabsTrigger value="url">网络链接</TabsTrigger>
@@ -139,9 +160,9 @@ export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
                   type="button"
                   className="w-full"
                   onClick={handleUrlSubmit}
-                  disabled={!imageUrl}
+                  disabled={!imageUrl || isUploading}
                 >
-                  确认
+                  {isUploading ? '转存中...' : '确认'}
                 </Button>
               </div>
             </TabsContent>
@@ -154,8 +175,19 @@ export function ImageUpload({ onImageUploaded, className }: ImageUploadProps) {
               </div>
             </TabsContent>
           </Tabs>
-        </DialogContent>
-      </Dialog>
+        </div>
+        <div className="border rounded-lg p-4 flex items-center justify-center">
+          {previewUrl || imageUrl ? (
+            <img
+              src={previewUrl || imageUrl}
+              alt="预览"
+              className="max-w-full max-h-[200px] object-contain"
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">图片预览区域</p>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

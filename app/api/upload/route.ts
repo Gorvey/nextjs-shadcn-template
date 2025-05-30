@@ -10,19 +10,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: '未配置数据库 ID' }, { status: 500 })
     }
 
-    const properties = await request.json()
+    const body = await request.json()
+    console.log('接收到的请求体:', JSON.stringify(body, null, 2))
 
     // 创建新页面
     const response = await notion.pages.create({
       parent: {
         database_id: databaseId,
       },
-      properties,
+      properties: body.properties,
+      icon: body.icon,
+      cover: body.cover,
     })
 
     return NextResponse.json({ success: true, data: response })
-  } catch (error) {
+  } catch (error: any) {
     console.error('创建页面失败:', error)
-    return NextResponse.json({ success: false, error: '创建页面失败' }, { status: 500 })
+    console.error('错误详情:', error.body)
+    return NextResponse.json(
+      {
+        success: false,
+        error: '创建页面失败',
+        details: error.body,
+      },
+      { status: 500 }
+    )
   }
 }
