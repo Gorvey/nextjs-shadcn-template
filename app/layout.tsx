@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 // import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
-
+import { Footer } from '@/components/layout/footer'
+import { Navbar } from '@/components/layout/navbar'
 // const geistSans = Geist({
 //   variable: '--font-geist-sans',
 //   subsets: ['latin'],
@@ -24,9 +25,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   )

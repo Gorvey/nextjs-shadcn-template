@@ -38,6 +38,9 @@ export async function POST(request: Request) {
     const uploadResponse = await fetch(`${origin}/api/upload-image`, {
       method: 'POST',
       body: formData,
+      headers: {
+        Cookie: request.headers.get('cookie') || '',
+      },
     })
 
     const data = await uploadResponse.json()
