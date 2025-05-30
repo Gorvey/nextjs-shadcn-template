@@ -1,14 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { NotionPage, NotionDatabase } from '@/types/notion'
-import {
-  getDatabaseDetailsFromCache,
-  getPagesFromCache,
-  saveDatabaseDetails,
-  savePages,
-  isWithinCooldownPeriod,
-} from '@/lib/indexdb'
+import type { NotionPage } from '@/types/notion'
 import { FilterSection } from '@/components/home/FilterSection'
 import { ResourceGrid } from '@/components/home/ResourceGrid'
 
@@ -24,56 +17,15 @@ export default function Home() {
       setLoading(true)
       setError(null)
 
-      // 判断是否在冷却期
-      const cooldown = await isWithinCooldownPeriod()
-      if (cooldown) {
-        // 冷却期内，直接用本地数据
-        const cachedPages = await getPagesFromCache()
-        if (cachedPages !== undefined) {
-          setData(cachedPages)
-          return
-        }
+      // 获取新的页面数据
+      const pagesResponse = await fetch('/api/getData')
+      const pagesResult = await pagesResponse.json()
+
+      if (!pagesResult.success) {
+        throw new Error(pagesResult.error)
       }
 
-      // 获取数据库详情
-      const detailsResponse = await fetch('/api/getDatabaseDetails')
-      const detailsResult = await detailsResponse.json()
-
-      if (!detailsResult.success) {
-        throw new Error(detailsResult.error)
-      }
-
-      const details: NotionDatabase = detailsResult.data
-
-      // 获取缓存中的数据库详情
-      const cachedDetails = await getDatabaseDetailsFromCache()
-
-      // 如果缓存为空或者数据库有更新，则重新获取数据
-      if (
-        cachedDetails === undefined ||
-        cachedDetails.last_edited_time !== details.last_edited_time
-      ) {
-        // 保存新的数据库详情
-        await saveDatabaseDetails(details)
-
-        // 获取新的页面数据
-        const pagesResponse = await fetch('/api/getData')
-        const pagesResult = await pagesResponse.json()
-
-        if (!pagesResult.success) {
-          throw new Error(pagesResult.error)
-        }
-
-        // 保存新的页面数据（会自动更新冷却期时间）
-        await savePages(pagesResult.data)
-        setData(pagesResult.data)
-      } else {
-        // 使用缓存的数据
-        const cachedPages = await getPagesFromCache()
-        if (cachedPages !== undefined) {
-          setData(cachedPages)
-        }
-      }
+      setData(pagesResult.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : '获取数据失败')
     } finally {

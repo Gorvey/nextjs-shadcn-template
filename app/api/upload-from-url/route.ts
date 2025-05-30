@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]/route'
 
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    return NextResponse.json({ success: false, error: '未授权访问' }, { status: 401 })
+  }
   try {
-    const { url } = await request.json()
+    const { url, sourceUrl } = await request.json()
 
     if (!url) {
       return NextResponse.json({ error: '请提供图片URL' }, { status: 400 })
+    }
+
+    if (!sourceUrl) {
+      return NextResponse.json({ error: '请提供源URL' }, { status: 400 })
     }
 
     // 下载图片
@@ -17,6 +28,7 @@ export async function POST(request: Request) {
     const blob = await response.blob()
     const formData = new FormData()
     formData.append('file', blob, 'image.jpg')
+    formData.append('url', sourceUrl)
 
     // 从当前请求URL中获取origin
     const requestUrl = new URL(request.url)

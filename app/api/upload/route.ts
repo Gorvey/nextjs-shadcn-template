@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server'
 import { Client } from '@notionhq/client'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]/route'
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN })
 
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    return NextResponse.json({ success: false, error: '未授权访问' }, { status: 401 })
+  }
   try {
     const databaseId = process.env.NOTION_DATABASE_ID
     if (!databaseId) {

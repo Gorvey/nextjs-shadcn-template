@@ -12,6 +12,8 @@ interface ImageUploadProps {
   previewUrl?: string
   activeTab?: string
   setActiveTab?: (tab: string) => void
+  disabled?: boolean
+  url?: string
 }
 
 export function ImageUpload({
@@ -21,6 +23,8 @@ export function ImageUpload({
   previewUrl,
   activeTab,
   setActiveTab,
+  disabled = false,
+  url,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [imageUrl, setImageUrl] = useState('')
@@ -35,12 +39,13 @@ export function ImageUpload({
   }, [previewUrl, setActiveTab])
 
   const handleFileUpload = async (file: File) => {
-    if (!file) return
+    if (!file || !url) return
     setIsUploading(true)
 
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('url', url)
 
       const response = await fetch('/api/upload-image', {
         method: 'POST',
@@ -60,6 +65,7 @@ export function ImageUpload({
   }
 
   const handlePaste = async (e: React.ClipboardEvent) => {
+    if (!url) return
     e.stopPropagation()
 
     const items = e.clipboardData?.items
@@ -83,7 +89,7 @@ export function ImageUpload({
   }
 
   const handleUrlSubmit = async () => {
-    if (!imageUrl) return
+    if (!imageUrl || !url) return
     setIsUploading(true)
 
     try {
@@ -92,7 +98,7 @@ export function ImageUpload({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: imageUrl }),
+        body: JSON.stringify({ url: imageUrl, sourceUrl: url }),
       })
 
       const data = await response.json()
@@ -108,6 +114,7 @@ export function ImageUpload({
   }
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    if (!url) return
     e.preventDefault()
     const file = e.dataTransfer.files?.[0]
     if (file && file.type.startsWith('image/')) {
@@ -124,19 +131,28 @@ export function ImageUpload({
       <Label className="text-sm">{label}</Label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="upload">本地上传</TabsTrigger>
-              <TabsTrigger value="url">网络链接</TabsTrigger>
-              <TabsTrigger value="paste">粘贴图片</TabsTrigger>
+              <TabsTrigger value="upload" disabled={disabled}>
+                本地上传
+              </TabsTrigger>
+              <TabsTrigger value="url" disabled={disabled}>
+                网络链接
+              </TabsTrigger>
+              <TabsTrigger value="paste" disabled={disabled}>
+                粘贴图片
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="upload" className="space-y-4">
               <div
                 ref={dropZoneRef}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
-                className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary"
-                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                  'border-2 border-dashed rounded-lg p-6 text-center',
+                  disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary'
+                )}
+                onClick={() => !disabled && fileInputRef.current?.click()}
               >
                 <Input
                   type="file"
@@ -144,8 +160,11 @@ export function ImageUpload({
                   onChange={handleFileChange}
                   ref={fileInputRef}
                   className="hidden"
+                  disabled={disabled}
                 />
-                <p className="text-sm text-muted-foreground">点击或拖拽图片到此处上传</p>
+                <p className="text-sm text-muted-foreground">
+                  {disabled ? '请先输入URL' : '点击或拖拽图片到此处上传'}
+                </p>
               </div>
             </TabsContent>
             <TabsContent value="url" className="space-y-4">
@@ -155,12 +174,13 @@ export function ImageUpload({
                   placeholder="输入图片URL"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
+                  disabled={disabled}
                 />
                 <Button
                   type="button"
                   className="w-full"
                   onClick={handleUrlSubmit}
-                  disabled={!imageUrl || isUploading}
+                  disabled={!imageUrl || isUploading || disabled}
                 >
                   {isUploading ? '转存中...' : '确认'}
                 </Button>
@@ -168,10 +188,15 @@ export function ImageUpload({
             </TabsContent>
             <TabsContent value="paste" className="space-y-4">
               <div
-                className="border-2 border-dashed rounded-lg p-6 text-center"
+                className={cn(
+                  'border-2 border-dashed rounded-lg p-6 text-center',
+                  disabled && 'opacity-50'
+                )}
                 onPaste={handlePaste}
               >
-                <p className="text-sm text-muted-foreground">在此处粘贴图片（Ctrl+V）</p>
+                <p className="text-sm text-muted-foreground">
+                  {disabled ? '请先输入URL' : '在此处粘贴图片（Ctrl+V）'}
+                </p>
               </div>
             </TabsContent>
           </Tabs>

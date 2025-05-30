@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { NotionDatabase, NotionPage } from '@/types/notion'
 import { getDatabaseDetailsFromCache } from '@/lib/indexdb'
@@ -13,6 +14,8 @@ import { ImageUpload } from '@/components/ui/image-upload'
 import { ResourceItem } from '@/components/home/ResourceItem'
 
 export default function UploadPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [databaseDetails, setDatabaseDetails] = useState<NotionDatabase | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -36,6 +39,13 @@ export default function UploadPage() {
     icon: null,
     cover: null,
   })
+
+  // 如果未登录，重定向到登录页面
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin')
+    }
+  }, [status, router])
 
   // 添加处理 Notion 属性格式的函数
   const formatNotionProperties = (data: Record<string, any>) => {
@@ -121,7 +131,12 @@ export default function UploadPage() {
   useEffect(() => {
     const fetchDatabaseDetails = async () => {
       try {
-        const response = await fetch('/api/getDatabaseDetails')
+        const response = await fetch('/api/getDatabaseDetails', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
         const result = await response.json()
 
         if (!result.success) {
@@ -151,8 +166,10 @@ export default function UploadPage() {
       }
     }
 
-    fetchDatabaseDetails()
-  }, [])
+    if (status === 'authenticated') {
+      fetchDatabaseDetails()
+    }
+  }, [status])
 
   const handleInputChange = (key: string, value: string) => {
     setFormData((prev) => {
@@ -248,6 +265,7 @@ export default function UploadPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(requestBody),
       })
 
@@ -283,6 +301,7 @@ export default function UploadPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ url }),
       })
       const { data } = await response.json()
@@ -346,6 +365,14 @@ export default function UploadPage() {
     }))
   }, [formData, iconUrl, coverUrl, databaseDetails])
 
+  if (status === 'loading') {
+    return <div>加载中...</div>
+  }
+
+  if (status === 'unauthenticated') {
+    return null // 会被重定向到登录页面
+  }
+
   if (loading) {
     return <div>加载中...</div>
   }
@@ -370,21 +397,6 @@ export default function UploadPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <ImageUpload
-              onImageUploaded={setIconUrl}
-              label="图标"
-              previewUrl={iconUrl}
-              activeTab={iconActiveTab}
-              setActiveTab={setIconActiveTab}
-            />
-            <ImageUpload
-              onImageUploaded={setCoverUrl}
-              label="封面"
-              previewUrl={coverUrl}
-              className="mt-4"
-              activeTab={coverActiveTab}
-              setActiveTab={setCoverActiveTab}
-            />
             {Object.entries(databaseDetails.properties)
               .filter(
                 ([_, property]) =>
@@ -433,6 +445,30 @@ export default function UploadPage() {
                       </Button>
                     )}
                   </div>
+                  {property.type === 'url' && property.name.toLowerCase() === 'url' && (
+                    <>
+                      <ImageUpload
+                        onImageUploaded={setIconUrl}
+                        label="图标"
+                        previewUrl={iconUrl}
+                        activeTab={iconActiveTab}
+                        setActiveTab={setIconActiveTab}
+                        className="mt-4"
+                        disabled={!formData[key]}
+                        url={formData[key]}
+                      />
+                      <ImageUpload
+                        onImageUploaded={setCoverUrl}
+                        label="封面"
+                        previewUrl={coverUrl}
+                        className="mt-4"
+                        activeTab={coverActiveTab}
+                        setActiveTab={setCoverActiveTab}
+                        disabled={!formData[key]}
+                        url={formData[key]}
+                      />
+                    </>
+                  )}
                 </div>
               ))}
           </div>

@@ -1,5 +1,19 @@
 import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {}
+const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/upload',
+        headers: [
+          {
+            key: 'x-middleware-auth',
+            value: 'true',
+          },
+        ],
+      },
+    ]
+  },
+}
 
 export default nextConfig

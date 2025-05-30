@@ -17,7 +17,7 @@ interface ResourceItemProps {
 
 export function ResourceItem({ item }: ResourceItemProps) {
   const title = typeof item.Name === 'string' ? item.Name : '未命名'
-  const description = typeof item.Description === 'string' ? item.Description : '暂无描述'
+  const description = typeof item.desc === 'string' ? item.desc : '暂无描述'
   const url = typeof item.URL === 'string' ? item.URL : ''
   const tags = Array.isArray(item.Tags) ? item.Tags : []
   const createdDate = new Date(item.created_time).toLocaleDateString('zh-CN', {
