@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { ExternalLinkIcon } from '@radix-ui/react-icons'
+import { ExternalLinkIcon, CopyIcon, CheckIcon } from '@radix-ui/react-icons'
 import { FaNpm, FaGithub } from 'react-icons/fa'
 import { FaExpand } from 'react-icons/fa'
 import type { NotionPage } from '@/types/notion'
@@ -17,6 +17,7 @@ interface ResourceItemProps {
 
 export function ResourceItem({ item }: ResourceItemProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
   const title = typeof item.Name === 'string' ? item.Name : ''
   const description = typeof item.desc === 'string' ? item.desc : ''
   const url = typeof item.URL === 'string' ? item.URL : ''
@@ -43,9 +44,19 @@ export function ResourceItem({ item }: ResourceItemProps) {
     day: 'numeric',
   })
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error('复制失败:', err)
+    }
+  }
+
   return (
-    <div className="has-[:focus-visible]:ring-offset-background relative flex w-full flex-col gap-2 text-sm sm:min-w-0">
-      <div className="shadow-base bg-muted relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
+    <div className=" rounded-lg  has-[:focus-visible]:ring-offset-background relative flex w-full flex-col gap-2 text-sm sm:min-w-0">
+      <div className="relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
         <Image
           alt={description}
           src={getCoverUrl()}
@@ -63,7 +74,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
               打开链接
             </Button>
           </div>
-          <div className="absolute bottom-4 px-4 flex w-full justify-between">
+          <div className="absolute bottom-2 px-2 flex w-full justify-between">
             <Button
               variant="ghost"
               size="icon"
@@ -97,40 +108,64 @@ export function ResourceItem({ item }: ResourceItemProps) {
         open={isPreviewOpen}
         close={() => setIsPreviewOpen(false)}
         slides={[{ src: getCoverUrl() }]}
-        plugins={[Zoom, Download, Fullscreen]}
+        plugins={[Zoom, Download]}
         carousel={{
-          finite: true,
+          finite: false,
           preload: 1,
           spacing: 0,
-          padding: 0,
+          padding: 32,
         }}
-        controller={{ closeOnBackdropClick: true }}
+        controller={{ closeOnBackdropClick: false }}
         zoom={{
           scrollToZoom: true,
         }}
+        render={{
+          buttonPrev: () => null,
+          buttonNext: () => null,
+        }}
       />
-      <a
-        className="flex items-center gap-3 pr-1"
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div className="bg-alpha-400 relative flex shrink-0 select-none items-center justify-center overflow-hidden after:absolute after:inset-0 after:border after:mix-blend-darken dark:after:mix-blend-lighten text-sm rounded-full size-9">
-          <Image
-            src={getIconUrl()}
-            alt="Avatar"
-            width={36}
-            height={36}
-            className="h-full w-full object-cover aspect-auto"
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <div className="line-clamp-1 font-medium leading-none text-foreground">{title}</div>
-          <div className="flex flex-row items-center gap-1.5 text-gray-500">
-            <span className="text-[13px] leading-none">{createdDate}</span>
+      <div className="flex items-center gap-3 py-1">
+        <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-12">
+          <div className="absolute -z-1 opacity-50">
+            <Image src={getIconUrl()} alt="Avatar" width={48} height={48} className="blur" />
+          </div>
+          <div className="relative z-1 rounded-[12px] overflow-hidden size-12">
+            <Image
+              src={getIconUrl()}
+              alt="Avatar"
+              width={48}
+              height={48}
+              className="h-full w-full object-cover p-0.5 rounded-[12px]"
+            />
           </div>
         </div>
-      </a>
+        <div className="flex flex-col gap-0.5 pt-[4px] min-w-0 flex-1">
+          <div className="text-lg line-clamp-1 font-medium leading-none text-foreground">
+            {title}
+          </div>
+          <div className="flex flex-row items-center gap-1.5 text-gray-500 group/url min-w-0">
+            <div className="text-[12px] leading-none  truncate min-w-0 overflow-hidden">{url}</div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 opacity-0 group-hover/url:opacity-100 transition-opacity duration-200 shrink-0"
+              onClick={copyToClipboard}
+              title={copySuccess ? '已复制!' : '复制链接'}
+            >
+              {copySuccess ? (
+                <CheckIcon className="h-3 w-3 text-green-500" />
+              ) : (
+                <CopyIcon className="h-3 w-3" />
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div className="line-clamp-3 list-none mb-3 text-sm text-gray-400 group-hover:dark:text-gray-200 group-hover:text-gray-600 transition-all duration-700">
+          {description}
+        </div>
+      </div>
     </div>
   )
 }
