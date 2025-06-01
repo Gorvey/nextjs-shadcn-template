@@ -57,6 +57,7 @@ export const authOptions: AuthOptions = {
     },
     async signIn({ user }: { user: User }) {
       const adminEmail = process.env.ADMIN_EMAIL
+      console.log('登录验证:', { userEmail: user.email, adminEmail })
       if (user.email === adminEmail) {
         return true
       }
@@ -68,4 +69,8 @@ export const authOptions: AuthOptions = {
     error: '/auth/error',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  // 添加 session 配置
+  session: {
+    strategy: 'jwt',
+  },
 }
