@@ -1,9 +1,29 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { getProviders } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SignInButton } from './signin-button'
+import type { ClientSafeProvider } from 'next-auth/react'
 
-export default async function SignIn() {
-  const providers = await getProviders()
+export default function SignIn() {
+  const [providers, setProviders] = useState<Record<string, ClientSafeProvider> | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const providers = await getProviders()
+        setProviders(providers)
+      } catch (error) {
+        console.error('获取提供商失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProviders()
+  }, [])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -14,10 +34,14 @@ export default async function SignIn() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {providers &&
+            {loading ? (
+              <div className="animate-pulse bg-gray-200 h-10 rounded"></div>
+            ) : (
+              providers &&
               Object.values(providers).map((provider) => (
                 <SignInButton key={provider.name} provider={provider} />
-              ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

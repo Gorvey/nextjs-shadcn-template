@@ -2,26 +2,17 @@
 
 import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { useSearchParams } from 'next/navigation'
+import { Github } from 'lucide-react'
+import type { ClientSafeProvider } from 'next-auth/react'
 
 interface SignInButtonProps {
-  provider: {
-    id: string
-    name: string
-  }
+  provider: ClientSafeProvider
 }
 
 export function SignInButton({ provider }: SignInButtonProps) {
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
-
   return (
-    <Button
-      key={provider.name}
-      onClick={() => signIn(provider.id, { callbackUrl })}
-      className="w-full"
-      variant="default"
-    >
+    <Button variant="outline" className="w-full" onClick={() => signIn(provider.id)}>
+      <Github className="mr-2 h-4 w-4" />
       使用 {provider.name} 登录
     </Button>
   )
