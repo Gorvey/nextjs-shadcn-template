@@ -42,10 +42,17 @@ export default function UploadPage() {
 
   // 如果未登录，重定向到登录页面
   useEffect(() => {
+    console.log('Upload页面session状态:', { status, session })
+
     if (status === 'unauthenticated') {
-      router.push('/auth/signin')
+      const currentUrl = window.location.href
+      const loginUrl = `/auth/signin?callbackUrl=${encodeURIComponent('/upload')}`
+      console.log('未登录，重定向到:', loginUrl)
+      router.push(loginUrl)
+    } else if (status === 'authenticated') {
+      console.log('已登录，用户信息:', session?.user)
     }
-  }, [status, router])
+  }, [status, router, session])
 
   // 添加处理 Notion 属性格式的函数
   const formatNotionProperties = (data: Record<string, any>) => {

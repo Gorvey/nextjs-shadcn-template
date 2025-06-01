@@ -12,11 +12,27 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      console.log('重定向调试:', { url, baseUrl })
+
       // 如果 url 是相对路径，直接返回
-      if (url.startsWith('/')) return `${baseUrl}${url}`
+      if (url.startsWith('/')) {
+        const redirectUrl = `${baseUrl}${url}`
+        console.log('相对路径重定向到:', redirectUrl)
+        return redirectUrl
+      }
+
       // 如果 url 是同域名的绝对路径，直接返回
-      else if (new URL(url).origin === baseUrl) return url
+      try {
+        if (new URL(url).origin === baseUrl) {
+          console.log('同域名重定向到:', url)
+          return url
+        }
+      } catch (error) {
+        console.log('URL解析错误:', error)
+      }
+
       // 否则跳转到首页
+      console.log('默认重定向到首页:', baseUrl)
       return baseUrl
     },
     async jwt({
