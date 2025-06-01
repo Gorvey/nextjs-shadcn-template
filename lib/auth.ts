@@ -11,6 +11,14 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // 如果 url 是相对路径，直接返回
+      if (url.startsWith('/')) return `${baseUrl}${url}`
+      // 如果 url 是同域名的绝对路径，直接返回
+      else if (new URL(url).origin === baseUrl) return url
+      // 否则跳转到首页
+      return baseUrl
+    },
     async jwt({
       token,
       account,
