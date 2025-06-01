@@ -206,6 +206,8 @@ export function ImageUpload({
             <img
               src={previewUrl || imageUrl}
               alt="预览"
+              width={200}
+              height={200}
               className="max-w-full max-h-[200px] object-contain"
             />
           ) : (

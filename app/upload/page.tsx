@@ -11,7 +11,7 @@ import type { NotionDatabase, NotionPage } from '@/types/notion'
 import { getDatabaseDetailsFromCache } from '@/lib/indexdb'
 import { cn } from '@/lib/utils'
 import { ImageUpload } from '@/components/ui/image-upload'
-import { ResourceItem } from '@/components/home/ResourceItem'
+import { ResourceItem } from '@/components/home/Card/ResourceItem'
 
 export default function UploadPage() {
   const { data: session, status } = useSession()

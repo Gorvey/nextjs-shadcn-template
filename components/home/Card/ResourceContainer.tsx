@@ -1,16 +1,14 @@
-import type { NotionPage } from '@/types/notion'
 import { ResourceItem } from './ResourceItem'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDataStore } from '@/stores/data.store'
 
-interface ResourceGridProps {
-  data: NotionPage[]
-  loading: boolean
-}
+export function ResourceContainer() {
+  const data = useDataStore((state) => state.data)
+  const loading = useDataStore((state) => state.loading)
 
-export function ResourceGrid({ data, loading }: ResourceGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(420px,100%),1fr))] gap-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(420px,100%),1fr))] gap-8">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
@@ -46,7 +44,7 @@ export function ResourceGrid({ data, loading }: ResourceGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(420px,100%),1fr))] gap-6">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(420px,100%),1fr))] gap-8">
       {data.map((item) => (
         <ResourceItem key={item.id} item={item} />
       ))}

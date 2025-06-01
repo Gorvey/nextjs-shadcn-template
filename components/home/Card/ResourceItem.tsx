@@ -10,6 +10,8 @@ import 'yet-another-react-lightbox/styles.css'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Download from 'yet-another-react-lightbox/plugins/download'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { Badge } from '@/components/ui/badge'
 
 interface ResourceItemProps {
   item: NotionPage
@@ -43,6 +45,27 @@ export function ResourceItem({ item }: ResourceItemProps) {
     month: 'short',
     day: 'numeric',
   })
+
+  // 收集所有array属性的name值作为tags
+  const getTags = () => {
+    const tags: string[] = []
+    const arrayFields = ['页面类型', '标签', '付费情况', '服务模式', '访问限制', '运行环境', '分组']
+
+    arrayFields.forEach((field) => {
+      const fieldValue = (item as any)[field]
+      if (Array.isArray(fieldValue)) {
+        fieldValue.forEach((subItem) => {
+          if (subItem && typeof subItem === 'object' && subItem.name) {
+            tags.push(subItem.name)
+          }
+        })
+      }
+    })
+
+    return tags
+  }
+
+  const tags = getTags()
 
   const copyToClipboard = async () => {
     try {
@@ -165,6 +188,22 @@ export function ResourceItem({ item }: ResourceItemProps) {
         <div className="line-clamp-3 list-none mb-3 text-sm text-gray-400 group-hover:dark:text-gray-200 group-hover:text-gray-600 transition-all duration-700">
           {description}
         </div>
+        {tags.length > 0 && (
+          <ScrollArea className="w-full whitespace-nowrap rounded-md">
+            <div className="flex w-max space-x-2 p-1 pb-2">
+              {tags.map((tag, index) => (
+                <Badge
+                  key={`${tag}-${index}`}
+                  variant="secondary"
+                  className="shrink-0 text-xs px-2 py-1"
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        )}
       </div>
     </div>
   )

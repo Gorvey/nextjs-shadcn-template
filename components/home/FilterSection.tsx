@@ -1,5 +1,7 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+'use client'
+
+import { useMemo, useEffect } from 'react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -7,77 +9,85 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ReloadIcon } from '@radix-ui/react-icons'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useDataStore } from '@/stores/data.store'
+import { useViewStore, type ViewType } from '@/stores/view.store'
 
-interface FilterSectionProps {
-  searchQuery: string
-  setSearchQuery: (value: string) => void
-  sortBy: string
-  setSortBy: (value: string) => void
-  loading: boolean
-  onRefresh: () => void
-  error: string | null
-}
+export function FilterSection() {
+  const viewType = useViewStore((state) => state.viewType)
+  const setViewType = useViewStore((state) => state.setViewType)
+  const databaseDetails = useDataStore((state) => state.databaseDetails)
+  const primaryLayout = useViewStore((state) => state.primaryLayout)
+  const setPrimaryLayout = useViewStore((state) => state.setPrimaryLayout)
+  const secondaryLayout = useViewStore((state) => state.secondaryLayout)
+  const setSecondaryLayout = useViewStore((state) => state.setSecondaryLayout)
 
-export function FilterSection({
-  searchQuery,
-  setSearchQuery,
-  sortBy,
-  setSortBy,
-  loading,
-  onRefresh,
-  error,
-}: FilterSectionProps) {
+  const options = useMemo(() => {
+    return databaseDetails?.properties
+      ? Object.values(databaseDetails.properties).filter(
+          (property: any) => property.type === 'multi_select'
+        )
+      : []
+  }, [databaseDetails?.properties])
+
+  // 设置默认值
+  useEffect(() => {
+    if (options.length > 0 && !primaryLayout && !secondaryLayout) {
+      setPrimaryLayout(options[0]?.id || null)
+      setSecondaryLayout(options[1]?.id || null)
+    }
+  }, [options, primaryLayout, secondaryLayout, setPrimaryLayout, setSecondaryLayout])
+
   return (
-    <Card className="mb-8">
-      <CardContent className="pt-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder="搜索资源..."
-              value={searchQuery}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-              className="w-full"
-            />
-          </div>
-          <div className="flex flex-row gap-2">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="排序方式" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">最新</SelectItem>
-                <SelectItem value="oldest">最早</SelectItem>
-                <SelectItem value="name">名称</SelectItem>
-              </SelectContent>
-            </Select>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" onClick={onRefresh} disabled={loading}>
-                    {loading ? (
-                      <ReloadIcon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ReloadIcon className="h-4 w-4" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>刷新数据</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+    <div className="flex items-center justify-between mb-8">
+      {viewType === 'grid' ? (
+        <div className="flex items-center">
+          <div className="mr-2 text-foreground">Primary Layout:</div>
+          <Select value={primaryLayout || undefined} onValueChange={setPrimaryLayout}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="选择主要布局" />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option: any) => (
+                <SelectItem
+                  key={option.id}
+                  value={option.id}
+                  disabled={option.id === secondaryLayout}
+                >
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="mr-2 ml-4 text-foreground">Secondary Layout:</div>
+          <Select value={secondaryLayout || undefined} onValueChange={setSecondaryLayout}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="选择次要布局" />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option: any) => (
+                <SelectItem
+                  key={option.id}
+                  value={option.id}
+                  disabled={option.id === primaryLayout}
+                >
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        {error && (
-          <Alert variant="destructive" className="mt-4">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
+      ) : (
+        <div></div>
+      )}
+      <div className="flex items-center">
+        <div className="mr-2 text-foreground">页面类型:</div>
+        <Tabs onValueChange={(value) => setViewType(value as ViewType)} value={viewType}>
+          <TabsList>
+            <TabsTrigger value="grid">Grid</TabsTrigger>
+            <TabsTrigger value="card">Card</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+    </div>
   )
 }

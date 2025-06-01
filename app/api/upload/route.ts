@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Client } from '@notionhq/client'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN })
 

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { nanoid } from 'nanoid'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { getServerSession } from 'next-auth/next'
+// import cloudinary from 'cloudinary'
+import { authOptions } from '@/lib/auth'
 
 const s3Client = new S3Client({
   region: process.env.CLOUDFLARE_R2_REGION!,
