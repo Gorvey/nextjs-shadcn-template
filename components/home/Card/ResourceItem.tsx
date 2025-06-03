@@ -91,9 +91,9 @@ export function ResourceItem({ item }: ResourceItemProps) {
         />
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[hsla(0,0%,100%,0.3)] to-[hsla(0,0%,40%,0.3)] opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100">
           <div className="z-10 hidden w-32 flex-col items-center justify-center gap-2 sm:flex">
-            <Button variant="default" className="w-full" onClick={() => window.open(url, '_blank')}>
+            {/* <Button variant="default" className="w-full" onClick={() => window.open(url, '_blank')}>
               查看详情
-            </Button>
+            </Button> */}
             <Button variant="outline" className="w-full" onClick={() => window.open(url, '_blank')}>
               <ExternalLinkIcon className="mr-1 h-3 w-3" />
               打开链接
