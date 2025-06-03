@@ -2,6 +2,9 @@ import { FilterSection } from '@/components/home/FilterSection'
 import { getDatabase, getDatabaseDetails } from '@/lib/notion'
 import { ClientWrapper } from '@/components/home/ClientWrapper'
 
+// 启用ISR：每60秒重新生成页面
+export const revalidate = 60
+
 export default async function Home() {
   let initialData = null
   let databaseDetails = null

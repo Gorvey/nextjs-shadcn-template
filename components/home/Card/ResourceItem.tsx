@@ -23,6 +23,8 @@ export function ResourceItem({ item }: ResourceItemProps) {
   const title = typeof item.Name === 'string' ? item.Name : ''
   const description = typeof item.desc === 'string' ? item.desc : ''
   const url = typeof item.URL === 'string' ? item.URL : ''
+  const Github = typeof item.Github === 'string' ? item.Github : ''
+  const npm = typeof item.Github === 'string' ? item.npm : ''
   // 处理 cover
   const getCoverUrl = () => {
     if (!item.cover) return '/placeholder.jpg'
@@ -107,22 +109,26 @@ export function ResourceItem({ item }: ResourceItemProps) {
               <FaExpand className="h-5 w-5 text-white" />
             </Button>
             <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full bg-[#CB3837]/80 hover:bg-[#CB3837] dark:bg-[#CB3837]/80 dark:hover:bg-[#CB3837]"
-                onClick={() => window.open(`https://www.npmjs.com/package/${title}`, '_blank')}
-              >
-                <FaNpm className="h-5 w-5 text-white" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
-                onClick={() => window.open(`https://github.com/${title}`, '_blank')}
-              >
-                <FaGithub className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </Button>
+              {npm && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-full bg-[#CB3837]/80 hover:bg-[#CB3837] dark:bg-[#CB3837]/80 dark:hover:bg-[#CB3837]"
+                  onClick={() => window.open(`npm}`, '_blank')}
+                >
+                  <FaNpm className="h-5 w-5 text-white" />
+                </Button>
+              )}
+              {Github && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-full bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
+                  onClick={() => window.open(`https://github.com/${title}`, '_blank')}
+                >
+                  <FaGithub className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

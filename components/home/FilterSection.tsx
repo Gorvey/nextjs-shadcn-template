@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { RefreshCw } from 'lucide-react'
 import { useDataStore } from '@/stores/data.store'
 import { useViewStore, type ViewType } from '@/stores/view.store'
 
@@ -16,6 +18,8 @@ export function FilterSection() {
   const viewType = useViewStore((state) => state.viewType)
   const setViewType = useViewStore((state) => state.setViewType)
   const databaseDetails = useDataStore((state) => state.databaseDetails)
+  const refreshData = useDataStore((state) => state.refreshData)
+  const loading = useDataStore((state) => state.loading)
   const primaryLayout = useViewStore((state) => state.primaryLayout)
   const setPrimaryLayout = useViewStore((state) => state.setPrimaryLayout)
   const secondaryLayout = useViewStore((state) => state.secondaryLayout)
@@ -79,14 +83,26 @@ export function FilterSection() {
       ) : (
         <div></div>
       )}
-      <div className="flex items-center">
-        <div className="mr-2 text-foreground">页面类型:</div>
-        <Tabs onValueChange={(value) => setViewType(value as ViewType)} value={viewType}>
-          <TabsList>
-            <TabsTrigger value="grid">Grid</TabsTrigger>
-            <TabsTrigger value="card">Card</TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center">
+          <div className="mr-2 text-foreground">页面类型:</div>
+          <Tabs onValueChange={(value) => setViewType(value as ViewType)} value={viewType}>
+            <TabsList>
+              <TabsTrigger value="grid">Grid</TabsTrigger>
+              <TabsTrigger value="card">Card</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+        <Button
+          variant="default"
+          size="lg"
+          onClick={refreshData}
+          disabled={loading}
+          className="flex items-center gap-2 bg-red-500 hover:bg-red-600"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          刷新数据
+        </Button>
       </div>
     </div>
   )
