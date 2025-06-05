@@ -23,6 +23,9 @@ export default function UploadPage() {
   const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState<Record<string, any>>({})
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({})
+  const [customOptions, setCustomOptions] = useState<Record<string, string[]>>({})
+  const [customInputs, setCustomInputs] = useState<Record<string, string>>({})
+  const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({})
   const [fetchingMeta, setFetchingMeta] = useState(false)
   const [iconUrl, setIconUrl] = useState<string>('')
   const [coverUrl, setCoverUrl] = useState<string>('')
@@ -135,44 +138,58 @@ export default function UploadPage() {
     return properties
   }
 
-  useEffect(() => {
-    const fetchDatabaseDetails = async () => {
-      try {
-        const response = await fetch('/api/getDatabaseDetails', {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        })
-        const result = await response.json()
+  // 提取 fetchDatabaseDetails 为独立函数
+  const fetchDatabaseDetails = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/getDatabaseDetails', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      })
+      const result = await response.json()
 
-        if (!result.success) {
-          throw new Error(result.error)
-        }
-
-        const details = result.data
-        if (details) {
-          setDatabaseDetails(details)
-          // 初始化表单数据
-          const initialFormData: Record<string, any> = {}
-          const initialSelectedOptions: Record<string, string[]> = {}
-          Object.keys(details.properties).forEach((key) => {
-            initialFormData[key] = ''
-            if (details.properties[key].type === 'multi_select') {
-              initialSelectedOptions[key] = []
-            }
-          })
-          setFormData(initialFormData)
-          setSelectedOptions(initialSelectedOptions)
-        }
-      } catch (error) {
-        console.error('获取数据库详情失败:', error)
-        setError('获取数据库详情失败')
-      } finally {
-        setLoading(false)
+      if (!result.success) {
+        throw new Error(result.error)
       }
-    }
 
+      const details = result.data
+      if (details) {
+        setDatabaseDetails(details)
+        // 初始化表单数据
+        const initialFormData: Record<string, any> = {}
+        const initialSelectedOptions: Record<string, string[]> = {}
+        const initialCustomOptions: Record<string, string[]> = {}
+        const initialCustomInputs: Record<string, string> = {}
+        const initialShowCustomInput: Record<string, boolean> = {}
+
+        Object.keys(details.properties).forEach((key) => {
+          initialFormData[key] = ''
+          if (details.properties[key].type === 'multi_select') {
+            initialSelectedOptions[key] = []
+            initialCustomOptions[key] = []
+            initialCustomInputs[key] = ''
+            initialShowCustomInput[key] = false
+          }
+        })
+
+        setFormData(initialFormData)
+        setSelectedOptions(initialSelectedOptions)
+        setCustomOptions(initialCustomOptions)
+        setCustomInputs(initialCustomInputs)
+        setShowCustomInput(initialShowCustomInput)
+      }
+    } catch (error) {
+      console.error('获取数据库详情失败:', error)
+      setError('获取数据库详情失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     if (status === 'authenticated') {
       fetchDatabaseDetails()
     }
@@ -207,6 +224,83 @@ export default function UploadPage() {
         [key]: newOptions,
       }
     })
+  }
+
+  // 添加自定义选项
+  const handleAddCustomOption = (key: string) => {
+    const customValue = customInputs[key]?.trim()
+    if (!customValue) return
+
+    // 检查是否已经存在（包括原始选项和自定义选项）
+    const property = databaseDetails?.properties[key]
+    const existingOptions =
+      property?.type === 'multi_select'
+        ? property.multi_select.options.map((opt: any) => opt.name)
+        : []
+    const allCustomOptions = customOptions[key] || []
+    const allOptions = [...existingOptions, ...allCustomOptions]
+
+    if (allOptions.includes(customValue)) {
+      setError(`选项 "${customValue}" 已存在`)
+      return
+    }
+
+    // 添加到自定义选项
+    setCustomOptions((prev) => ({
+      ...prev,
+      [key]: [...(prev[key] || []), customValue],
+    }))
+
+    // 自动选中新添加的选项
+    handleOptionToggle(key, customValue)
+
+    // 清空输入框
+    setCustomInputs((prev) => ({
+      ...prev,
+      [key]: '',
+    }))
+
+    // 隐藏输入框
+    setShowCustomInput((prev) => ({
+      ...prev,
+      [key]: false,
+    }))
+
+    setError(null)
+  }
+
+  // 删除自定义选项
+  const handleRemoveCustomOption = (key: string, option: string) => {
+    // 从自定义选项中移除
+    setCustomOptions((prev) => ({
+      ...prev,
+      [key]: (prev[key] || []).filter((opt) => opt !== option),
+    }))
+
+    // 从已选择的选项中移除
+    setSelectedOptions((prev) => {
+      const currentOptions = prev[key] || []
+      const newOptions = currentOptions.filter((item) => item !== option)
+
+      // 更新表单数据
+      setFormData((formPrev) => ({
+        ...formPrev,
+        [key]: newOptions.join(','),
+      }))
+
+      return {
+        ...prev,
+        [key]: newOptions,
+      }
+    })
+  }
+
+  // 处理自定义输入框的回车键
+  const handleCustomInputKeyDown = (key: string, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleAddCustomOption(key)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -285,10 +379,26 @@ export default function UploadPage() {
       setSuccess(true)
       // 重置表单
       const initialFormData: Record<string, any> = {}
+      const initialSelectedOptions: Record<string, string[]> = {}
+      const initialCustomOptions: Record<string, string[]> = {}
+      const initialCustomInputs: Record<string, string> = {}
+      const initialShowCustomInput: Record<string, boolean> = {}
+
       Object.keys(databaseDetails?.properties || {}).forEach((key) => {
         initialFormData[key] = ''
+        if (databaseDetails?.properties[key].type === 'multi_select') {
+          initialSelectedOptions[key] = []
+          initialCustomOptions[key] = []
+          initialCustomInputs[key] = ''
+          initialShowCustomInput[key] = false
+        }
       })
+
       setFormData(initialFormData)
+      setSelectedOptions(initialSelectedOptions)
+      setCustomOptions(initialCustomOptions)
+      setCustomInputs(initialCustomInputs)
+      setShowCustomInput(initialShowCustomInput)
       setIconUrl('')
       setCoverUrl('')
     } catch (err) {
@@ -355,22 +465,31 @@ export default function UploadPage() {
     const urlKey = Object.keys(databaseDetails?.properties || {}).find(
       (key) => databaseDetails?.properties[key].name.toLowerCase() === 'url'
     )
-    const tagsKey = Object.keys(databaseDetails?.properties || {}).find(
-      (key) => databaseDetails?.properties[key].type === 'multi_select'
-    )
 
-    setPreviewData((prev) => ({
-      ...prev,
+    // 构建预览数据，包含所有多选字段的数据
+    const updatedPreviewData: NotionPage = {
+      ...previewData,
       Name: formData[nameKey || ''] || '',
-      Description: formData[descKey || ''] || '',
+      desc: formData[descKey || ''] || '', // 注意这里用的是desc而不是Description
       URL: formData[urlKey || ''] || '',
-      Tags: formData[tagsKey || '']
-        ? formData[tagsKey || ''].split(',').map((tag: string) => tag.trim())
-        : [],
       icon: iconUrl ? { type: 'external', external: { url: iconUrl } } : null,
       cover: coverUrl ? { type: 'external', external: { url: coverUrl } } : null,
-    }))
-  }, [formData, iconUrl, coverUrl, databaseDetails])
+    }
+
+    // 处理所有多选字段
+    Object.entries(databaseDetails?.properties || {}).forEach(([key, property]) => {
+      if (property.type === 'multi_select') {
+        const selectedTags = selectedOptions[key] || []
+        // 将标签转换为ResourceItem组件期望的格式
+        updatedPreviewData[key] = selectedTags.map((tagName) => ({
+          id: tagName,
+          name: tagName,
+        }))
+      }
+    })
+
+    setPreviewData(updatedPreviewData)
+  }, [formData, selectedOptions, iconUrl, coverUrl, databaseDetails])
 
   if (status === 'loading') {
     return <div>加载中...</div>
@@ -390,7 +509,19 @@ export default function UploadPage() {
 
   return (
     <div className="container mx-auto px-4 py-4 pb-20">
-      <div className="text-lg font-medium mb-4">添加新资源</div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-lg font-medium">添加新资源</div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={fetchDatabaseDetails}
+          disabled={loading}
+          className="h-8"
+        >
+          {loading ? '刷新中...' : '刷新'}
+        </Button>
+      </div>
       {error && (
         <Alert variant="destructive" className="mb-2">
           <AlertDescription>{error}</AlertDescription>
@@ -498,7 +629,7 @@ export default function UploadPage() {
                           }
                           onClick={() => handleOptionToggle(key, option.name)}
                           className={cn(
-                            'transition-colors h-7 px-2 text-sm',
+                            'transition-colors h-8 px-3 text-sm',
                             selectedOptions[key]?.includes(option.name) &&
                               'bg-primary text-primary-foreground'
                           )}
@@ -506,7 +637,75 @@ export default function UploadPage() {
                           {option.name}
                         </Button>
                       ))}
+                      {(customOptions[key] || []).map((option, index) => (
+                        <div key={`custom-${index}`} className="relative group">
+                          <Button
+                            type="button"
+                            variant={selectedOptions[key]?.includes(option) ? 'default' : 'outline'}
+                            onClick={() => handleOptionToggle(key, option)}
+                            className={cn(
+                              'transition-colors h-8 px-3 text-sm pr-7',
+                              selectedOptions[key]?.includes(option) &&
+                                'bg-primary text-primary-foreground'
+                            )}
+                          >
+                            {option}
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCustomOption(key, option)}
+                            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                            title="删除自定义选项"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowCustomInput((prev) => ({ ...prev, [key]: true }))}
+                        className="h-8 px-3 text-sm border-dashed"
+                      >
+                        + 自定义
+                      </Button>
                     </div>
+                    {showCustomInput[key] && (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          type="text"
+                          placeholder="输入自定义选项..."
+                          value={customInputs[key] || ''}
+                          onChange={(e) =>
+                            setCustomInputs((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          onKeyDown={(e) => handleCustomInputKeyDown(key, e)}
+                          className="h-7 text-sm"
+                          autoFocus
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => handleAddCustomOption(key)}
+                          disabled={!customInputs[key]?.trim()}
+                          className="h-7 px-2 text-sm"
+                          size="sm"
+                        >
+                          添加
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setShowCustomInput((prev) => ({ ...prev, [key]: false }))
+                            setCustomInputs((prev) => ({ ...prev, [key]: '' }))
+                          }}
+                          className="h-7 px-2 text-sm"
+                          size="sm"
+                        >
+                          取消
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )
               }

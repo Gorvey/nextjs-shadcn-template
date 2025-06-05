@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 // import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
+import { useTheme } from 'next-themes'
+
 // import { Footer } from '@/components/layout/footer'
 // import { Navbar } from '@/components/layout/navbar'
 // const geistSans = Geist({
@@ -26,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`antialiased`}>
+      <body className={`antialiased `}>
         <Providers>
           {/* <Navbar /> */}
           {children}

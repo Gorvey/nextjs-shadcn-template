@@ -33,8 +33,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto px-4 py-8">
+    <div className="bg-slate-50/50 dark:bg-slate-900/50 min-h-screen  text-foreground">
+      <div className="mx-auto px-4 py-8 relative">
         <ClientWrapper initialData={initialData} databaseDetails={databaseDetails} error={error}>
           <FilterSection />
         </ClientWrapper>

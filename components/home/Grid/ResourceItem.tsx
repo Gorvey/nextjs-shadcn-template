@@ -51,8 +51,13 @@ export function ResourceItem({ item }: ResourceItemProps) {
   return (
     <HoverCard openDelay={500} closeDelay={300}>
       <HoverCardTrigger asChild>
-        <div className="cursor-pointer">
-          <div className="flex items-center py-1">
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            window.open(item.URL as string, '_blank')
+          }}
+        >
+          <div className="flex items-center justify-center py-1">
             <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-[88px]">
               <div className="absolute -z-1 opacity-50">
                 <Image src={getIconUrl()} alt="Avatar" width={88} height={88} className="blur" />
@@ -68,7 +73,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
               </div>
             </div>
           </div>
-          <div className="max-w-[120px] line-clamp-1 font-medium leading-none text-foreground">
+          <div className="mt-2 max-w-[120px] line-clamp-1 font-medium leading-none text-foreground text-center">
             {title}
           </div>
         </div>

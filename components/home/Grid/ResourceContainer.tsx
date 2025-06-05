@@ -130,17 +130,23 @@ export function ResourceContainer() {
   // 渲染三级树形结构
   const renderTreeList = (tree: TreeList[]) => {
     return tree.map((primaryGroup) => (
-      <div key={primaryGroup.id} className="mb-8 flex ">
-        <h2 className="mr-8 bg-slate-100 text-slate-700 text-2xl font-bold  w-[50px] px-2 py-4 rounded-md [writing-mode:vertical-rl] ">
+      <div key={primaryGroup.id} className="mb-12">
+        <h2 className="mb-6 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 text-slate-800 dark:text-slate-100 text-xl font-medium w-fit px-6 py-3 rounded-full shadow-sm border border-slate-300 dark:border-slate-700">
           {primaryGroup.name}
         </h2>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4 flex-grow">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(400px,1fr))] gap-6">
           {(primaryGroup.children as TreeList[]).map((secondaryGroup) => (
-            <div key={secondaryGroup.id} className="border-2 border-gray-400 rounded-md p-4">
-              <h3 className="text-lg font-semibold mb-3 text-muted-foreground">
-                {secondaryGroup.name} ({(secondaryGroup.children as NotionPage[]).length})
+            <div
+              key={secondaryGroup.id}
+              className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200"
+            >
+              <h3 className="text-base font-medium mb-4 text-slate-600 dark:text-slate-300 pb-2 border-b border-slate-200 dark:border-slate-700">
+                {secondaryGroup.name}
+                <span className="ml-2 text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full">
+                  {(secondaryGroup.children as NotionPage[]).length}
+                </span>
               </h3>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4  ">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
                 {(secondaryGroup.children as NotionPage[]).map((item) => (
                   <ResourceItem key={item.id} item={item} />
                 ))}
@@ -163,20 +169,25 @@ export function ResourceContainer() {
   }
 
   return (
-    <div>
+    <div className=" rounded-2xl p-6">
       {/* 主要的树形结构 */}
       {renderTreeList(treeList)}
 
       {/* 没有命中一级分类的资源，直接显示 */}
       {uncategorizedItems.length > 0 && (
-        <div className="mt-12 border-t pt-8">
-          <h2 className="text-2xl font-bold mb-4 text-destructive">
-            未分配一级分类 ({uncategorizedItems.length})
+        <div className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
+          <h2 className="text-xl font-medium mb-6 text-slate-700 dark:text-slate-200 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 w-fit px-6 py-3 rounded-full shadow-sm border border-red-200 dark:border-red-700">
+            未分配一级分类
+            <span className="ml-2 text-sm bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-300 px-2 py-1 rounded-full">
+              {uncategorizedItems.length}
+            </span>
           </h2>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(min(120px,100%),1fr))] gap-4">
-            {uncategorizedItems.map((item) => (
-              <ResourceItem key={item.id} item={item} />
-            ))}
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
+              {uncategorizedItems.map((item) => (
+                <ResourceItem key={item.id} item={item} />
+              ))}
+            </div>
           </div>
         </div>
       )}

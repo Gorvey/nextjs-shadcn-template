@@ -2,9 +2,11 @@ import { Button } from '@/components/ui/button'
 import { ExternalLinkIcon, CopyIcon, CheckIcon } from '@radix-ui/react-icons'
 import { FaNpm, FaGithub } from 'react-icons/fa'
 import { FaExpand } from 'react-icons/fa'
+import { SiNotion } from 'react-icons/si'
 import type { NotionPage } from '@/types/notion'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
@@ -18,6 +20,7 @@ interface ResourceItemProps {
 }
 
 export function ResourceItem({ item }: ResourceItemProps) {
+  const { data: session } = useSession()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const title = typeof item.Name === 'string' ? item.Name : ''
@@ -48,7 +51,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
     day: 'numeric',
   })
 
-  // 收集所有array属性的name值作为tags
+  // 收集所有array属性的name值作为tags，并去重
   const getTags = () => {
     const tags: string[] = []
     const arrayFields = ['页面类型', '标签', '付费情况', '服务模式', '访问限制', '运行环境', '分组']
@@ -64,7 +67,8 @@ export function ResourceItem({ item }: ResourceItemProps) {
       }
     })
 
-    return tags
+    // 使用Set进行去重，然后转回数组
+    return [...new Set(tags)]
   }
 
   const tags = getTags()
@@ -77,6 +81,49 @@ export function ResourceItem({ item }: ResourceItemProps) {
     } catch (err) {
       console.error('复制失败:', err)
     }
+  }
+
+  // 访问Notion原页面
+  const openNotionPage = () => {
+    // 将带连字符的ID转换为Notion URL格式（去掉连字符）
+    const pageId = item.id.replace(/-/g, '')
+    const notionUrl = `https://www.notion.so/${pageId}`
+    const notionClientUrl = `notion://www.notion.so/${pageId}`
+
+    // 检测是否支持自定义协议
+    let hasOpenedClient = false
+
+    // 创建一个不可见的iframe来尝试打开客户端
+    const iframe = document.createElement('iframe')
+    iframe.style.display = 'none'
+    iframe.src = notionClientUrl
+    document.body.appendChild(iframe)
+
+    // 设置一个短暂的延迟来检测是否成功打开了客户端
+    const timeout = setTimeout(() => {
+      if (!hasOpenedClient) {
+        // 如果客户端没有打开，则打开网页版
+        window.open(notionUrl, '_blank')
+      }
+      document.body.removeChild(iframe)
+    }, 500)
+
+    // 监听窗口焦点变化来检测是否打开了客户端
+    const handleFocus = () => {
+      hasOpenedClient = true
+      clearTimeout(timeout)
+      document.body.removeChild(iframe)
+      window.removeEventListener('blur', handleFocus)
+    }
+
+    window.addEventListener('blur', handleFocus)
+
+    // 作为备用方案，也直接尝试打开网页版
+    setTimeout(() => {
+      if (!hasOpenedClient) {
+        window.open(notionUrl, '_blank')
+      }
+    }, 1500)
   }
 
   return (
@@ -100,14 +147,27 @@ export function ResourceItem({ item }: ResourceItemProps) {
             </Button>
           </div>
           <div className="absolute bottom-2 px-2 flex w-full justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 rounded-full bg-black/80 hover:bg-black dark:bg-black/80 dark:hover:bg-black"
-              onClick={() => setIsPreviewOpen(true)}
-            >
-              <FaExpand className="h-5 w-5 text-white" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-full bg-black/80 hover:bg-black dark:bg-black/80 dark:hover:bg-black"
+                onClick={() => setIsPreviewOpen(true)}
+              >
+                <FaExpand className="h-5 w-5 text-white" />
+              </Button>
+              {session && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-full bg-black/80 hover:bg-black dark:bg-black/80 dark:hover:bg-black"
+                  onClick={openNotionPage}
+                  title="在Notion中打开"
+                >
+                  <SiNotion className="h-5 w-5 text-white" />
+                </Button>
+              )}
+            </div>
             <div className="flex gap-2">
               {npm && (
                 <Button

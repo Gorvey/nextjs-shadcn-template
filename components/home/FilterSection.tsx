@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { RefreshCw } from 'lucide-react'
 import { useDataStore } from '@/stores/data.store'
 import { useViewStore, type ViewType } from '@/stores/view.store'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 
 export function FilterSection() {
   const viewType = useViewStore((state) => state.viewType)
@@ -41,39 +42,49 @@ export function FilterSection() {
     }
   }, [options, primaryLayout, secondaryLayout, setPrimaryLayout, setSecondaryLayout])
 
+  // 处理主要布局选择变化
+  const handlePrimaryLayoutChange = (value: string) => {
+    if (value === secondaryLayout) {
+      // 如果选择的值与次要布局相同，则互换
+      setSecondaryLayout(primaryLayout)
+    }
+    setPrimaryLayout(value)
+  }
+
+  // 处理次要布局选择变化
+  const handleSecondaryLayoutChange = (value: string) => {
+    if (value === primaryLayout) {
+      // 如果选择的值与主要布局相同，则互换
+      setPrimaryLayout(secondaryLayout)
+    }
+    setSecondaryLayout(value)
+  }
+
   return (
     <div className="flex items-center justify-between mb-8">
       {viewType === 'grid' ? (
         <div className="flex items-center">
           <div className="mr-2 text-foreground">Primary Layout:</div>
-          <Select value={primaryLayout || undefined} onValueChange={setPrimaryLayout}>
+          <Select value={primaryLayout || undefined} onValueChange={handlePrimaryLayoutChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="选择主要布局" />
             </SelectTrigger>
             <SelectContent>
               {options.map((option: any) => (
-                <SelectItem
-                  key={option.id}
-                  value={option.id}
-                  disabled={option.id === secondaryLayout}
-                >
+                <SelectItem key={option.id} value={option.id}>
                   {option.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <div className="mr-2 ml-4 text-foreground">Secondary Layout:</div>
-          <Select value={secondaryLayout || undefined} onValueChange={setSecondaryLayout}>
+          <Select value={secondaryLayout || undefined} onValueChange={handleSecondaryLayoutChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="选择次要布局" />
             </SelectTrigger>
             <SelectContent>
               {options.map((option: any) => (
-                <SelectItem
-                  key={option.id}
-                  value={option.id}
-                  disabled={option.id === primaryLayout}
-                >
+                <SelectItem key={option.id} value={option.id}>
                   {option.name}
                 </SelectItem>
               ))}
@@ -98,11 +109,12 @@ export function FilterSection() {
           size="lg"
           onClick={refreshData}
           disabled={loading}
-          className="flex items-center gap-2 bg-red-500 hover:bg-red-600"
+          className="flex items-center gap-2 "
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           刷新数据
         </Button>
+        <ThemeToggle />
       </div>
     </div>
   )
