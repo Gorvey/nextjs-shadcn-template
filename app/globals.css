@@ -53,6 +53,21 @@
     --chart-5: 27 87% 67%;
 
     --radius: 0.5rem;
+
+    /* 层级化背景色 - 亮色模式 */
+    --level-0: 0 0% 98%; /* 最底层 - 页面背景 */
+    --level-1: 0 0% 95%; /* 主容器背景 */
+    --level-2: 0 0% 100%; /* 次级容器背景 (白色卡片) */
+    --level-3: 0 0% 97%; /* 三级容器背景 */
+
+    /* 层级化边框 */
+    --border-subtle: 0 0% 92%;
+    --border-emphasis: 0 0% 85%;
+
+    /* 增强的阴影 */
+    --shadow-subtle: 0 0% 0% / 0.05;
+    --shadow-medium: 0 0% 0% / 0.1;
+    --shadow-strong: 0 0% 0% / 0.15;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -102,6 +117,21 @@
     --chart-4: 280 65% 60%;
 
     --chart-5: 340 75% 55%;
+
+    /* 层级化背景色 - 暗色模式 */
+    --level-0: 0 0% 3.9%; /* 最底层 - 页面背景 */
+    --level-1: 0 0% 8%; /* 主容器背景 */
+    --level-2: 0 0% 14%; /* 次级容器背景 */
+    --level-3: 0 0% 20%; /* 三级容器背景 */
+
+    /* 层级化边框 - 暗色模式 */
+    --border-subtle: 0 0% 25%;
+    --border-emphasis: 0 0% 35%;
+
+    /* 增强的阴影 - 暗色模式 */
+    --shadow-subtle: 0 0% 0% / 0.3;
+    --shadow-medium: 0 0% 0% / 0.5;
+    --shadow-strong: 0 0% 0% / 0.7;
   }
 }
 
@@ -111,5 +141,59 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* 层级化背景工具类 */
+  .bg-level-0 {
+    background-color: hsl(var(--level-0));
+  }
+
+  .bg-level-1 {
+    background-color: hsl(var(--level-1));
+  }
+
+  .bg-level-2 {
+    background-color: hsl(var(--level-2));
+  }
+
+  .bg-level-3 {
+    background-color: hsl(var(--level-3));
+  }
+
+  /* 层级化边框工具类 */
+  .border-subtle {
+    border-color: hsl(var(--border-subtle));
+  }
+
+  .border-emphasis {
+    border-color: hsl(var(--border-emphasis));
+  }
+
+  /* 层级化阴影工具类 */
+  .shadow-subtle {
+    box-shadow: 0 1px 3px hsl(var(--shadow-subtle));
+  }
+
+  .shadow-medium {
+    box-shadow:
+      0 4px 6px -1px hsl(var(--shadow-medium)),
+      0 2px 4px -1px hsl(var(--shadow-subtle));
+  }
+
+  .shadow-strong {
+    box-shadow:
+      0 10px 15px -3px hsl(var(--shadow-strong)),
+      0 4px 6px -2px hsl(var(--shadow-medium));
+  }
+
+  /* 增强的悬停效果 */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1 shadow-strong;
   }
 }

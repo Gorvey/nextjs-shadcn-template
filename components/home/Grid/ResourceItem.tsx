@@ -2,6 +2,8 @@ import type { NotionPage } from '@/types/notion'
 import { ThumbHashImage } from '@/components/ui/thumbhash-image'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { ResourceItem as CardResourceItem } from '../Card/ResourceItem'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 interface ResourceItemProps {
   item: NotionPage
@@ -39,48 +41,51 @@ export function ResourceItem({ item }: ResourceItemProps) {
   }
 
   return (
-    <HoverCard openDelay={500} closeDelay={300}>
+    <HoverCard openDelay={300} closeDelay={200}>
       <HoverCardTrigger asChild>
-        <div
-          className="cursor-pointer"
+        <Card
+          className="group cursor-pointer bg-level-3/80 border border-subtle transition-all duration-300 p-3 rounded-xl"
           onClick={() => {
             window.open(item.URL as string, '_blank')
           }}
         >
-          <div className="flex items-center justify-center py-1">
-            <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-[88px]">
-              <div className="absolute -z-1 opacity-50">
-                <ThumbHashImage
-                  src={getIconUrl()}
-                  alt="Avatar"
-                  width={88}
-                  height={88}
-                  className="blur"
-                />
-              </div>
-              <div className="relative z-1 rounded-[12px] overflow-hidden size-[88px]">
-                <ThumbHashImage
-                  src={getIconUrl()}
-                  alt="Avatar"
-                  width={88}
-                  height={88}
-                  className="h-full w-full object-cover p-0.5 rounded-[12px]"
-                />
-              </div>
+          {/* 图标容器 - 现代扁平设计 */}
+          <div className="relative flex items-center justify-center mb-3">
+            <div className="relative size-16 overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-subtle transition-all duration-300">
+              <ThumbHashImage
+                src={getIconUrl()}
+                alt={title}
+                width={64}
+                height={64}
+                className="h-full w-full object-cover rounded-lg"
+              />
             </div>
+
+            {/* 右上角状态指示器 */}
+            <div className="absolute -top-1 -right-1 size-3 bg-green-500 rounded-full border-2 border-level-3 opacity-0 transition-opacity duration-300 shadow-subtle" />
           </div>
-          <div className="mt-2 max-w-[120px] line-clamp-1 font-medium leading-none text-foreground text-center">
-            {title}
+
+          {/* 标题 */}
+          <div className="text-center px-1">
+            <h4 className="text-xs font-medium text-foreground/85 line-clamp-2 leading-tight transition-colors duration-300 min-h-[2.5rem] flex items-center justify-center">
+              {title}
+            </h4>
           </div>
-        </div>
+
+          {/* 底部指示器 */}
+          <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 transition-opacity duration-300 mt-2 mx-2 rounded-full" />
+        </Card>
       </HoverCardTrigger>
+
       <HoverCardContent
-        className="w-80 p-2 overflow-hidden"
+        className="w-80 p-0 border border-emphasis shadow-strong bg-level-2/95 backdrop-blur-md"
         side="right"
         align="start"
         sideOffset={10}
       >
-        <CardResourceItem item={item} />
+        <div className="p-4 bg-level-3/30 border-b border-subtle">
+          <CardResourceItem item={item} />
+        </div>
       </HoverCardContent>
     </HoverCard>
   )
