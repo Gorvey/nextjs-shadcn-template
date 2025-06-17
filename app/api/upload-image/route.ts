@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import { getServerSession } from 'next-auth/next'
 // import cloudinary from 'cloudinary'
 import { authOptions } from '@/lib/auth'
+import { generateThumbHashServer, addThumbHashToUrl } from '@/lib/thumbhash-server'
 
 const s3Client = new S3Client({
   region: process.env.CLOUDFLARE_R2_REGION!,
@@ -47,11 +48,12 @@ export async function POST(request: Request) {
     const fileExtension = file.name.split('.').pop()
     const fileName = `${prefix}/${nanoid()}.${fileExtension}`
     const buffer = await file.arrayBuffer()
+    const bufferData = Buffer.from(buffer)
 
     const command = new PutObjectCommand({
       Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME!,
       Key: fileName,
-      Body: Buffer.from(buffer),
+      Body: bufferData,
       ContentType: file.type,
     })
 
@@ -59,7 +61,15 @@ export async function POST(request: Request) {
 
     const imageUrl = `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${fileName}`
 
-    return NextResponse.json({ url: imageUrl })
+    // 生成 thumbhash 并拼接到 URL
+    try {
+      const thumbHash = await generateThumbHashServer(bufferData)
+      const imageUrlWithThumbHash = addThumbHashToUrl(imageUrl, thumbHash)
+      return NextResponse.json({ url: imageUrlWithThumbHash })
+    } catch (thumbHashError) {
+      console.error('生成 thumbhash 失败，返回原始 URL:', thumbHashError)
+      return NextResponse.json({ url: imageUrl })
+    }
   } catch (error) {
     console.error('上传图片失败:', error)
     return NextResponse.json({ error: '上传失败' }, { status: 500 })

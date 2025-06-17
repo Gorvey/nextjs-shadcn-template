@@ -1,6 +1,5 @@
 import type { NotionPage } from '@/types/notion'
-import Image from 'next/image'
-import { useState } from 'react'
+import { ThumbHashImage } from '@/components/ui/thumbhash-image'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { ResourceItem as CardResourceItem } from '../Card/ResourceItem'
 
@@ -10,15 +9,6 @@ interface ResourceItemProps {
 
 export function ResourceItem({ item }: ResourceItemProps) {
   const title = typeof item.Name === 'string' ? item.Name : ''
-  // const description = typeof item.desc === 'string' ? item.desc : ''
-  // const url = typeof item.URL === 'string' ? item.URL : ''
-  // 处理 cover
-  // const getCoverUrl = () => {
-  //   if (!item.cover) return '/placeholder.jpg'
-  //   if (item.cover.type === 'external') return item.cover.external.url
-  //   if (item.cover.type === 'file') return item.cover.file.url
-  //   return '/placeholder.jpg'
-  // }
 
   // 处理 icon
   const getIconUrl = () => {
@@ -60,10 +50,16 @@ export function ResourceItem({ item }: ResourceItemProps) {
           <div className="flex items-center justify-center py-1">
             <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-[88px]">
               <div className="absolute -z-1 opacity-50">
-                <Image src={getIconUrl()} alt="Avatar" width={88} height={88} className="blur" />
+                <ThumbHashImage
+                  src={getIconUrl()}
+                  alt="Avatar"
+                  width={88}
+                  height={88}
+                  className="blur"
+                />
               </div>
               <div className="relative z-1 rounded-[12px] overflow-hidden size-[88px]">
-                <Image
+                <ThumbHashImage
                   src={getIconUrl()}
                   alt="Avatar"
                   width={88}

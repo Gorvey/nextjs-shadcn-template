@@ -4,6 +4,7 @@ import { FaNpm, FaGithub } from 'react-icons/fa'
 import { FaExpand } from 'react-icons/fa'
 import { SiNotion } from 'react-icons/si'
 import type { NotionPage } from '@/types/notion'
+import { ThumbHashImage } from '@/components/ui/thumbhash-image'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
@@ -129,12 +130,12 @@ export function ResourceItem({ item }: ResourceItemProps) {
   return (
     <div className=" rounded-lg  has-[:focus-visible]:ring-offset-background relative flex w-full flex-col gap-2 text-sm sm:min-w-0">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
-        <Image
+        <ThumbHashImage
+          fill
+          sizes="100vw"
           alt={description}
           src={getCoverUrl()}
-          fill
           className="object-cover object-top"
-          sizes="100vw"
         />
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[hsla(0,0%,100%,0.3)] to-[hsla(0,0%,40%,0.3)] opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100">
           <div className="z-10 hidden w-32 flex-col items-center justify-center gap-2 sm:flex">
@@ -216,10 +217,16 @@ export function ResourceItem({ item }: ResourceItemProps) {
       <div className="flex items-center gap-3 py-1">
         <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-12">
           <div className="absolute -z-1 opacity-50">
-            <Image src={getIconUrl()} alt="Avatar" width={48} height={48} className="blur" />
+            <ThumbHashImage
+              src={getIconUrl()}
+              alt="Avatar"
+              width={48}
+              height={48}
+              className="blur"
+            />
           </div>
           <div className="relative z-1 rounded-[12px] overflow-hidden size-12">
-            <Image
+            <ThumbHashImage
               src={getIconUrl()}
               alt="Avatar"
               width={48}

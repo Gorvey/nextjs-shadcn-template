@@ -46,8 +46,10 @@
     "react-image-crop": "^11.0.10",
     "react-image-lightbox": "^5.1.4",
     "react-viewer": "^3.2.2",
+    "sharp": "^0.34.2",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
+    "thumbhash": "^0.1.1",
     "yet-another-react-lightbox": "^3.23.2",
     "zustand": "^5.0.5"
   },
