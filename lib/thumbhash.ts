@@ -65,6 +65,7 @@ export async function generateThumbHash(imageSource: string | File): Promise<str
 
 /**
  * 将thumbhash解码为base64图片数据URL
+ * 优化版本：为 Next.js blurDataURL 生成小尺寸、高质量的占位图
  */
 export function thumbHashToDataURL(thumbHashBase64: string): string {
   try {
@@ -79,54 +80,58 @@ export function thumbHashToDataURL(thumbHashBase64: string): string {
     const thumbHashData = thumbHashToRGBA(thumbHashArray)
     const { w, h, rgba } = thumbHashData
 
-    // 创建小尺寸canvas用于原始数据
-    const smallCanvas = document.createElement('canvas')
-    const smallCtx = smallCanvas.getContext('2d')
+    // 创建canvas
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
 
-    if (!smallCtx) {
+    if (!ctx) {
       console.error('无法创建canvas context')
       return ''
     }
 
-    smallCanvas.width = w
-    smallCanvas.height = h
+    // 为 blurDataURL 使用较小但足够的尺寸 (Next.js 推荐 64x64 或更小)
+    const maxBlurSize = 40
+    const aspectRatio = w / h
 
-    // 关闭抗锯齿以保持原始像素效果
-    smallCtx.imageSmoothingEnabled = false
-
-    // 创建ImageData并填充RGBA数据
-    const imageData = smallCtx.createImageData(w, h)
-    imageData.data.set(rgba)
-
-    // 将ImageData绘制到小canvas
-    smallCtx.putImageData(imageData, 0, 0)
-
-    // 创建更大的canvas用于平滑放大
-    const targetSize = Math.max(w, h) < 50 ? 200 : Math.max(w, h) * 4
-    const scaleX = targetSize / w
-    const scaleY = targetSize / h
-    const scale = Math.min(scaleX, scaleY)
-
-    const bigCanvas = document.createElement('canvas')
-    const bigCtx = bigCanvas.getContext('2d')
-
-    if (!bigCtx) {
-      console.error('无法创建大canvas context')
-      return smallCanvas.toDataURL('image/png')
+    let canvasWidth, canvasHeight
+    if (aspectRatio > 1) {
+      canvasWidth = maxBlurSize
+      canvasHeight = Math.round(maxBlurSize / aspectRatio)
+    } else {
+      canvasHeight = maxBlurSize
+      canvasWidth = Math.round(maxBlurSize * aspectRatio)
     }
 
-    bigCanvas.width = w * scale
-    bigCanvas.height = h * scale
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
 
     // 启用高质量图像平滑
-    bigCtx.imageSmoothingEnabled = true
-    bigCtx.imageSmoothingQuality = 'high'
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
 
-    // 将小图像平滑放大到大canvas
-    bigCtx.drawImage(smallCanvas, 0, 0, w, h, 0, 0, bigCanvas.width, bigCanvas.height)
+    // 创建原始尺寸的ImageData
+    const tempCanvas = document.createElement('canvas')
+    const tempCtx = tempCanvas.getContext('2d')
 
-    // 返回高质量的data URL
-    return bigCanvas.toDataURL('image/jpeg', 0.9)
+    if (!tempCtx) {
+      console.error('无法创建临时canvas context')
+      return ''
+    }
+
+    tempCanvas.width = w
+    tempCanvas.height = h
+    tempCtx.imageSmoothingEnabled = false
+
+    // 创建ImageData并填充RGBA数据
+    const imageData = tempCtx.createImageData(w, h)
+    imageData.data.set(rgba)
+    tempCtx.putImageData(imageData, 0, 0)
+
+    // 将原始thumbhash平滑缩放到目标尺寸
+    ctx.drawImage(tempCanvas, 0, 0, w, h, 0, 0, canvasWidth, canvasHeight)
+
+    // 返回高质量的小尺寸data URL（使用 JPEG 格式，质量稍低以减小大小）
+    return canvas.toDataURL('image/jpeg', 0.8)
   } catch (error) {
     console.error('thumbHashToDataURL 转换失败:', error)
     return ''

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image, { ImageProps } from 'next/image'
 import { extractThumbHashFromUrl, thumbHashToDataURL } from '@/lib/thumbhash'
 import { cn } from '@/lib/utils'
 
-interface ThumbHashImageProps extends ImageProps {
+interface ThumbHashImageProps extends Omit<ImageProps, 'placeholder' | 'blurDataURL'> {
   src: string
   alt: string
   className?: string
@@ -13,18 +13,17 @@ interface ThumbHashImageProps extends ImageProps {
 }
 
 export function ThumbHashImage({ src, alt, className, fill, ...props }: ThumbHashImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [thumbHashDataUrl, setThumbHashDataUrl] = useState<string>('')
   const [actualImageSrc, setActualImageSrc] = useState<string>('')
+  const [blurDataURL, setBlurDataURL] = useState<string>('')
+
+  // 使用 useMemo 缓存 thumbhash 提取结果
+  const thumbHash = useMemo(() => extractThumbHashFromUrl(src), [src])
 
   useEffect(() => {
-    // 提取thumbhash
-    const thumbHash = extractThumbHashFromUrl(src)
-
     if (thumbHash) {
-      // 生成thumbhash占位图
+      // 生成模糊占位图
       const dataUrl = thumbHashToDataURL(thumbHash)
-      setThumbHashDataUrl(dataUrl)
+      setBlurDataURL(dataUrl)
 
       // 获取真实图片URL（去掉thumbhash参数）
       try {
@@ -37,87 +36,24 @@ export function ThumbHashImage({ src, alt, className, fill, ...props }: ThumbHas
     } else {
       // 没有thumbhash，直接使用原始图片
       setActualImageSrc(src)
+      setBlurDataURL('')
     }
-  }, [src])
+  }, [src, thumbHash])
 
-  const handleLoad = () => {
-    setIsLoaded(true)
+  // 如果还没有处理完URL，不渲染任何内容
+  if (!actualImageSrc) {
+    return null
   }
 
-  // 如果使用 fill，父容器需要 relative 定位
-  if (fill) {
-    return (
-      <>
-        {/* ThumbHash占位图 */}
-        {thumbHashDataUrl && !isLoaded && (
-          <Image
-            fill
-            src={thumbHashDataUrl}
-            alt=""
-            className={cn('absolute inset-0 z-10 transition-opacity duration-300', className)}
-            style={{
-              filter: 'blur(1px)',
-              imageRendering: 'pixelated',
-            }}
-            unoptimized
-            {...props}
-          />
-        )}
-
-        {/* 真实图片 */}
-        {actualImageSrc && (
-          <Image
-            fill
-            src={actualImageSrc}
-            alt={alt}
-            onLoad={handleLoad}
-            className={cn(
-              'transition-opacity duration-300',
-              isLoaded ? 'opacity-100' : thumbHashDataUrl ? 'opacity-0' : 'opacity-100',
-              className
-            )}
-            {...props}
-          />
-        )}
-      </>
-    )
-  }
-
-  // 常规模式
   return (
-    <div className="relative">
-      {/* ThumbHash占位图 */}
-      {thumbHashDataUrl && !isLoaded && (
-        <Image
-          {...props}
-          src={thumbHashDataUrl}
-          alt=""
-          className={cn(
-            'absolute inset-0 z-10 object-cover transition-opacity duration-300',
-            className
-          )}
-          style={{
-            filter: 'blur(1px)',
-            imageRendering: 'pixelated',
-          }}
-          unoptimized
-        />
-      )}
-
-      {/* 真实图片 */}
-      {actualImageSrc && (
-        <Image
-          {...props}
-          src={actualImageSrc}
-          alt={alt}
-          onLoad={handleLoad}
-          className={cn(
-            'transition-opacity duration-300',
-            isLoaded ? 'opacity-100' : thumbHashDataUrl ? 'opacity-0' : 'opacity-100',
-            className
-          )}
-        />
-      )}
-    </div>
+    <Image
+      {...props}
+      fill={fill}
+      src={actualImageSrc}
+      alt={alt}
+      placeholder={blurDataURL ? 'blur' : 'empty'}
+      blurDataURL={blurDataURL || undefined}
+      className={cn('transition-opacity duration-300', className)}
+    />
   )
 }
