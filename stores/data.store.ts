@@ -26,8 +26,8 @@ export const useDataStore = create<DataStore>((set, get) => ({
       if (result.success) {
         // 调用 API 重新获取数据
         const [dataResponse, detailsResponse] = await Promise.all([
-          fetch('/api/getData'),
-          fetch('/api/getDatabaseDetails'),
+          fetch('/api/v1/data?action=all'),
+          fetch('/api/v1/data?action=details'),
         ])
 
         const dataResult = await dataResponse.json()

@@ -5,14 +5,12 @@ import { FaExpand } from 'react-icons/fa'
 import { SiNotion } from 'react-icons/si'
 import type { NotionPage } from '@/types/notion'
 import { ThumbHashImage } from '@/components/ui/thumbhash-image'
-import Image from 'next/image'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Download from 'yet-another-react-lightbox/plugins/download'
-import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 
@@ -129,7 +127,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
 
   return (
     <div className=" rounded-lg  has-[:focus-visible]:ring-offset-background relative flex w-full flex-col gap-2 text-sm sm:min-w-0">
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
+      <div className="dark:shadow-[0_0_2px_rgba(255,255,255,0.4)] shadow-[0_0_2px_rgba(0,0,0,0.1)] relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
         <ThumbHashImage
           fill
           sizes="100vw"
@@ -137,7 +135,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
           src={getCoverUrl()}
           className="object-cover object-top"
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[hsla(0,0%,100%,0.3)] to-[hsla(0,0%,40%,0.3)] opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100">
+        <div className=" absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[hsla(0,0%,100%,0.3)] to-[hsla(0,0%,40%,0.3)] opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100">
           <div className="z-10 hidden w-32 flex-col items-center justify-center gap-2 sm:flex">
             {/* <Button variant="default" className="w-full" onClick={() => window.open(url, '_blank')}>
               查看详情

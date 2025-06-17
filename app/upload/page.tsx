@@ -143,7 +143,7 @@ export default function UploadPage() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/getDatabaseDetails', {
+      const response = await fetch('/api/v1/data?action=details', {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -361,7 +361,7 @@ export default function UploadPage() {
 
       console.log('请求体:', JSON.stringify(requestBody, null, 2))
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/v1/data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -413,7 +413,7 @@ export default function UploadPage() {
     if (!url) return
     setFetchingMeta(true)
     try {
-      const response = await fetch('/api/getMetaData', {
+      const response = await fetch('/api/v1/meta', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -421,7 +421,27 @@ export default function UploadPage() {
         credentials: 'include',
         body: JSON.stringify({ url }),
       })
-      const { data } = await response.json()
+
+      if (!response.ok) {
+        let errorMessage = `请求失败 (${response.status})`
+        try {
+          const errorData = await response.json()
+          if (errorData.error) {
+            errorMessage = errorData.error
+          }
+        } catch (jsonError) {
+          // 如果无法解析错误响应为 JSON，使用默认错误信息
+          console.error('无法解析错误响应:', jsonError)
+        }
+        throw new Error(errorMessage)
+      }
+
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error || '获取元数据失败')
+      }
+
+      const { data } = result
       console.log('获取到的元数据:', data)
 
       // 更新表单数据
@@ -449,6 +469,8 @@ export default function UploadPage() {
       }
     } catch (error) {
       console.error('获取元数据失败:', error)
+      const errorMessage = error instanceof Error ? error.message : '获取元数据失败'
+      setError(errorMessage)
     } finally {
       setFetchingMeta(false)
     }

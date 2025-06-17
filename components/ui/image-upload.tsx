@@ -47,12 +47,12 @@ export function ImageUpload({
       formData.append('file', file)
       formData.append('url', url)
 
-      const response = await fetch('/api/upload-image', {
+      const response = await fetch('/api/v1/upload', {
         method: 'POST',
         body: formData,
       })
 
-      const data = await response.json()
+      const { data } = await response.json()
       if (data.url) {
         onImageUploaded(data.url)
         setImageUrl(data.url)
@@ -93,7 +93,7 @@ export function ImageUpload({
     setIsUploading(true)
 
     try {
-      const response = await fetch('/api/upload-from-url', {
+      const response = await fetch('/api/v1/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export function ImageUpload({
         body: JSON.stringify({ url: imageUrl, sourceUrl: url }),
       })
 
-      const data = await response.json()
+      const { data } = await response.json()
       if (data.url) {
         onImageUploaded(data.url)
         setImageUrl(data.url)
