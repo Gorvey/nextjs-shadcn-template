@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { nanoid } from 'nanoid'
+import sharp from 'sharp'
 import { generateThumbHashServer, addThumbHashToUrl } from '@/lib/thumbhash-server'
 import { validateEnvVar } from '@/lib/api-middleware'
 
@@ -33,6 +34,37 @@ export class UploadService {
     })
   }
 
+  /**
+   * 使用 sharp 处理图片：转换为 webp 格式并进行高质量压缩
+   * @param buffer 原始图片缓冲区
+   * @returns 处理后的 webp 图片缓冲区
+   */
+  private async processImage(buffer: Buffer): Promise<Buffer> {
+    try {
+      // 获取原始图片信息
+      const metadata = await sharp(buffer).metadata()
+
+      // 使用 sharp 转换为 webp 格式，保持原尺寸，高质量压缩
+      const processedBuffer = await sharp(buffer)
+        .webp({
+          quality: 85, // 高质量压缩，保留细节
+          effort: 6, // 最高压缩效率
+          smartSubsample: true, // 智能色度子采样
+          nearLossless: false, // 不使用近无损模式以获得更好的压缩比
+        })
+        .toBuffer()
+
+      console.log(
+        `图片处理完成: ${metadata.width}x${metadata.height} ${metadata.format} -> webp, 原始大小: ${buffer.length} bytes, 压缩后: ${processedBuffer.length} bytes`
+      )
+
+      return processedBuffer
+    } catch (error) {
+      console.error('图片处理失败，使用原始图片:', error)
+      return buffer
+    }
+  }
+
   async uploadFile(file: File, sourceUrl: string): Promise<UploadResult> {
     // 从 URL 中提取 origin
     let origin: string
@@ -45,10 +77,12 @@ export class UploadService {
 
     // 将 origin 转换为前缀（使用连字符替换点号）
     const prefix = origin.replace(/\./g, '-')
-    const fileExtension = file.name.split('.').pop()
-    const fileName = `${prefix}/${nanoid()}.${fileExtension}`
+    const fileName = `${prefix}/${nanoid()}.webp` // 统一使用 webp 扩展名
     const buffer = await file.arrayBuffer()
-    const bufferData = Buffer.from(buffer)
+    const originalBuffer = Buffer.from(buffer)
+
+    // 使用 sharp 处理图片
+    const processedBuffer = await this.processImage(originalBuffer)
 
     const bucketName = validateEnvVar(
       'CLOUDFLARE_R2_BUCKET_NAME',
@@ -62,8 +96,8 @@ export class UploadService {
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: fileName,
-      Body: bufferData,
-      ContentType: file.type,
+      Body: processedBuffer,
+      ContentType: 'image/webp', // 设置正确的 Content-Type
     })
 
     await this.s3Client.send(command)
@@ -72,7 +106,7 @@ export class UploadService {
 
     // 生成 thumbhash 并拼接到 URL
     try {
-      const thumbHash = await generateThumbHashServer(bufferData)
+      const thumbHash = await generateThumbHashServer(processedBuffer)
       const imageUrlWithThumbHash = addThumbHashToUrl(imageUrl, thumbHash)
       return {
         url: imageUrlWithThumbHash,
@@ -87,16 +121,67 @@ export class UploadService {
     }
   }
 
-  async downloadAndUpload(imageUrl: string, sourceUrl: string): Promise<UploadResult> {
+  async downloadAndUpload(inputImageUrl: string, sourceUrl: string): Promise<UploadResult> {
     // 下载图片
-    const response = await fetch(imageUrl)
+    const response = await fetch(inputImageUrl)
     if (!response.ok) {
       throw new Error('下载图片失败')
     }
 
     const blob = await response.blob()
-    const file = new File([blob], 'image.jpg', { type: blob.type })
+    const buffer = Buffer.from(await blob.arrayBuffer())
 
-    return await this.uploadFile(file, sourceUrl)
+    // 直接处理下载的图片缓冲区，而不是创建 File 对象
+    // 从 URL 中提取 origin
+    let origin: string
+    try {
+      const urlObj = new URL(sourceUrl)
+      origin = urlObj.hostname
+    } catch (error) {
+      throw new Error('无效的URL格式')
+    }
+
+    // 将 origin 转换为前缀（使用连字符替换点号）
+    const prefix = origin.replace(/\./g, '-')
+    const fileName = `${prefix}/${nanoid()}.webp` // 统一使用 webp 扩展名
+
+    // 使用 sharp 处理图片
+    const processedBuffer = await this.processImage(buffer)
+
+    const bucketName = validateEnvVar(
+      'CLOUDFLARE_R2_BUCKET_NAME',
+      process.env.CLOUDFLARE_R2_BUCKET_NAME
+    )
+    const publicUrl = validateEnvVar(
+      'CLOUDFLARE_R2_PUBLIC_URL',
+      process.env.CLOUDFLARE_R2_PUBLIC_URL
+    )
+
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: fileName,
+      Body: processedBuffer,
+      ContentType: 'image/webp', // 设置正确的 Content-Type
+    })
+
+    await this.s3Client.send(command)
+
+    const imageUrl = `${publicUrl}/${fileName}`
+
+    // 生成 thumbhash 并拼接到 URL
+    try {
+      const thumbHash = await generateThumbHashServer(processedBuffer)
+      const imageUrlWithThumbHash = addThumbHashToUrl(imageUrl, thumbHash)
+      return {
+        url: imageUrlWithThumbHash,
+        fileName,
+      }
+    } catch (thumbHashError) {
+      console.error('生成 thumbhash 失败，返回原始 URL:', thumbHashError)
+      return {
+        url: imageUrl,
+        fileName,
+      }
+    }
   }
 }

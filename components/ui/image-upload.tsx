@@ -128,7 +128,10 @@ export function ImageUpload({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <Label className="text-sm">{label}</Label>
+      <Label className="text-sm">
+        {label}
+        {imageUrl}
+      </Label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-4">
           <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab}>

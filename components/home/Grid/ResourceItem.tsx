@@ -3,7 +3,6 @@ import { ThumbHashImage } from '@/components/ui/thumbhash-image'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { ResourceItem as CardResourceItem } from '../Card/ResourceItem'
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 
 interface ResourceItemProps {
   item: NotionPage
@@ -44,25 +43,32 @@ export function ResourceItem({ item }: ResourceItemProps) {
     <HoverCard openDelay={300} closeDelay={200}>
       <HoverCardTrigger asChild>
         <Card
-          className="group cursor-pointer bg-level-3/80 border border-subtle transition-all duration-300 p-3 rounded-xl"
+          className="group cursor-pointer bg-level-3/80 border border-subtle transition-all duration-300 p-0 pt-4 rounded-xl"
           onClick={() => {
             window.open(item.URL as string, '_blank')
           }}
         >
-          {/* 图标容器 - 现代扁平设计 */}
           <div className="relative flex items-center justify-center mb-3">
-            <div className="relative size-16 overflow-hidden rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-subtle transition-all duration-300">
-              <ThumbHashImage
-                src={getIconUrl()}
-                alt={title}
-                width={64}
-                height={64}
-                className="h-full w-full object-cover rounded-lg"
-              />
+            <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-12">
+              <div className="absolute -z-1 opacity-50">
+                <ThumbHashImage
+                  src={getIconUrl()}
+                  alt="Avatar"
+                  width={48}
+                  height={48}
+                  className="blur"
+                />
+              </div>
+              <div className="relative z-1 rounded-[12px] overflow-hidden size-12">
+                <ThumbHashImage
+                  src={getIconUrl()}
+                  alt="Avatar"
+                  width={48}
+                  height={48}
+                  className="h-full w-full object-cover p-0.5 rounded-[12px]"
+                />
+              </div>
             </div>
-
-            {/* 右上角状态指示器 */}
-            <div className="absolute -top-1 -right-1 size-3 bg-green-500 rounded-full border-2 border-level-3 opacity-0 transition-opacity duration-300 shadow-subtle" />
           </div>
 
           {/* 标题 */}
@@ -71,9 +77,6 @@ export function ResourceItem({ item }: ResourceItemProps) {
               {title}
             </h4>
           </div>
-
-          {/* 底部指示器 */}
-          <div className="h-0.5 bg-gradient-to-r from-transparent via-primary/60 to-transparent opacity-0 transition-opacity duration-300 mt-2 mx-2 rounded-full" />
         </Card>
       </HoverCardTrigger>
 
