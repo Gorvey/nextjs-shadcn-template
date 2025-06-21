@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     // 在开发环境中禁用图片优化
     unoptimized: true,
   },
+
+  // 页面扩展名配置
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
   async headers() {
     return [
       {

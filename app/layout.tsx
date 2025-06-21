@@ -4,7 +4,7 @@ import './globals.css'
 import { Providers } from './providers'
 import { Analytics } from '@vercel/analytics/next'
 // import { Footer } from '@/components/layout/footer'
-// import { Navbar } from '@/components/layout/navbar'
+import { Navbar } from '@/components/layout/navbar'
 // const geistSans = Geist({
 //   variable: '--font-geist-sans',
 //   subsets: ['latin'],
@@ -34,7 +34,22 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased `}>
         <Providers>
-          {/* <Navbar /> */}
+          <Navbar
+            logo={{
+              url: '/',
+              src: 'https://www.notion.so/images/logo-ios.png',
+              alt: 'Notion资源站',
+              title: 'Notion资源站',
+            }}
+            menu={[
+              { title: '首页', url: '/' },
+              { title: '博客', url: '/blog' },
+            ]}
+            auth={{
+              login: { title: '登录', url: '/auth/signin' },
+              signup: { title: '注册', url: '/auth/signup' },
+            }}
+          />
           {children}
           {/* <Footer /> */}
         </Providers>

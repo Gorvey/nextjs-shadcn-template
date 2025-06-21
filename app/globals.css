@@ -197,3 +197,118 @@
     @apply -translate-y-1 shadow-strong;
   }
 }
+
+/* React Notion X 自定义样式 */
+.notion-container {
+  max-width: none;
+}
+
+.notion-container .notion-page {
+  padding: 0;
+  margin: 0;
+}
+
+.notion-container .notion-title {
+  display: none; /* 隐藏 Notion 标题，使用我们自定义的标题 */
+}
+
+.notion-container .notion-block {
+  padding: 0.25rem 0;
+}
+
+.notion-container .notion-text {
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.notion-container .notion-h1,
+.notion-container .notion-h2,
+.notion-container .notion-h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.notion-container .notion-h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.notion-container .notion-h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.notion-container .notion-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.notion-container .notion-list {
+  margin: 1rem 0;
+}
+
+.notion-container .notion-list-item {
+  margin: 0.5rem 0;
+}
+
+.notion-container .notion-code {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.notion-container .notion-quote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.notion-container .notion-callout {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.notion-container .notion-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.notion-container .notion-table th,
+.notion-container .notion-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.notion-container .notion-table th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .notion-container {
+    padding: 0;
+  }
+
+  .notion-container .notion-h1 {
+    font-size: 1.5rem;
+  }
+
+  .notion-container .notion-h2 {
+    font-size: 1.25rem;
+  }
+
+  .notion-container .notion-h3 {
+    font-size: 1.125rem;
+  }
+}
