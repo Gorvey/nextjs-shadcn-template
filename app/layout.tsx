@@ -1,27 +1,18 @@
 import type { Metadata } from 'next'
-// import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { Analytics } from '@vercel/analytics/next'
-// import { Footer } from '@/components/layout/footer'
+import { Footer } from '@/components/layout/footer'
 import { Navbar } from '@/components/layout/navbar'
-// const geistSans = Geist({
-//   variable: '--font-geist-sans',
-//   subsets: ['latin'],
-// })
-
-// const geistMono = Geist_Mono({
-//   variable: '--font-geist-mono',
-//   subsets: ['latin'],
-// })
+import { BackToTop } from '@/components/layout/back-to-top'
 
 export const metadata: Metadata = {
-  title: 'Notion资源站',
-  description: 'Notion资源站',
+  title: 'cooool.fun - 发现最cooool的前端资源',
+  description: 'cooool.fun, 一个分享资源的网站.前端博客站点,发现最cooool的前端资源',
   robots: {
     index: false,
     follow: false,
-    nocache: true, // 可选，表示不缓存
+    nocache: true,
   },
 }
 
@@ -34,25 +25,38 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased `}>
         <Providers>
-          <Navbar
-            logo={{
-              url: '/',
-              src: 'https://www.notion.so/images/logo-ios.png',
-              alt: 'Notion资源站',
-              title: 'Notion资源站',
-            }}
-            menu={[
-              { title: '首页', url: '/' },
-              { title: '博客', url: '/blog' },
-            ]}
-            auth={{
-              login: { title: '登录', url: '/auth/signin' },
-              signup: { title: '注册', url: '/auth/signup' },
-            }}
-          />
-          {children}
-          {/* <Footer /> */}
+          <div className="flex flex-col min-h-screen">
+            <Navbar
+              logo={{
+                url: '/',
+                title: '.fun',
+              }}
+              menu={[
+                { title: '导航', url: '/' },
+                { title: '博客', url: '/blog' },
+                { title: 'Blocks', url: '/blocks' },
+                { title: '关于本站', url: '/about' },
+              ]}
+            />
+            <main className="flex-grow">{children}</main>
+            <Footer
+              logo={{
+                url: '/',
+                title: '.fun',
+              }}
+              menu={[
+                { title: '导航', url: '/' },
+                { title: '博客', url: '/blog' },
+                { title: 'Blocks', url: '/blocks' },
+                { title: '关于本站', url: '/about' },
+              ]}
+              tagline="Gorvey的博客,资源集合"
+              creator="Gorvey"
+              copyright="© 2025 cooool.fun. All rights reserved."
+            />
+          </div>
         </Providers>
+        <BackToTop />
         <Analytics />
       </body>
     </html>
