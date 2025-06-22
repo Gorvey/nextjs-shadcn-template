@@ -40,7 +40,7 @@ const Navbar = ({
   // 键盘快捷键支持
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      if (e.key === 'p' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         setSearchOpen((open) => !open)
       }
@@ -103,7 +103,7 @@ const Navbar = ({
                   variant="outline"
                   size="icon"
                   aria-label="搜索"
-                  title="搜索（Ctrl + K）"
+                  title="搜索（Ctrl + P）"
                   onClick={() => setSearchOpen(true)}
                 >
                   <Search className="h-[1.2rem] w-[1.2rem]" aria-hidden="true" />

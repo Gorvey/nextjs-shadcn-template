@@ -12,7 +12,8 @@ import { getUrl } from './utils/utils'
 import type { SearchResult, SearchCommandProps } from './types'
 
 export function DesktopSearchCommand({ open, onOpenChange }: SearchCommandProps) {
-  const { query, results, loading, setQuery, reset } = useSearch()
+  const { query, results, loading, setQuery, reset, handleCompositionStart, handleCompositionEnd } =
+    useSearch()
 
   // 处理项目选择
   const handleSelect = (item: SearchResult) => {
@@ -52,6 +53,8 @@ export function DesktopSearchCommand({ open, onOpenChange }: SearchCommandProps)
           placeholder="搜索博客和资源..."
           value={query}
           onValueChange={setQuery}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
           className="text-base"
         />
       </div>

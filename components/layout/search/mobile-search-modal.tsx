@@ -13,7 +13,8 @@ import type { SearchResult, SearchCommandProps } from './types'
 import { useEffect } from 'react'
 
 export function MobileSearchModal({ open, onOpenChange }: SearchCommandProps) {
-  const { query, results, loading, setQuery, reset } = useSearch()
+  const { query, results, loading, setQuery, reset, handleCompositionStart, handleCompositionEnd } =
+    useSearch()
 
   // 防止背景页面滚动
   useEffect(() => {
@@ -74,6 +75,8 @@ export function MobileSearchModal({ open, onOpenChange }: SearchCommandProps) {
               placeholder="搜索博客和资源..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
               className="pl-10 pr-10 h-11 border-0 shadow-none focus-visible:ring-1 focus-visible:ring-primary text-base bg-muted/50"
               autoFocus
             />

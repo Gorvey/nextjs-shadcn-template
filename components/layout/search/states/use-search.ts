@@ -9,6 +9,8 @@ export function useSearch() {
   })
 
   const abortControllerRef = useRef<AbortController | null>(null)
+  // 添加输入法组合状态跟踪
+  const isComposingRef = useRef(false)
 
   // 防抖搜索
   useEffect(() => {
@@ -18,6 +20,11 @@ export function useSearch() {
     }
 
     const timeoutId = setTimeout(async () => {
+      // 如果正在进行输入法组合（如拼音输入），则不发送请求
+      if (isComposingRef.current) {
+        return
+      }
+
       // 取消上一次的请求
       if (abortControllerRef.current) {
         abortControllerRef.current.abort()
@@ -85,9 +92,20 @@ export function useSearch() {
     setState({ query: '', results: [], loading: false })
   }
 
+  // 输入法组合事件处理函数
+  const handleCompositionStart = () => {
+    isComposingRef.current = true
+  }
+
+  const handleCompositionEnd = () => {
+    isComposingRef.current = false
+  }
+
   return {
     ...state,
     setQuery,
     reset,
+    handleCompositionStart,
+    handleCompositionEnd,
   }
 }
