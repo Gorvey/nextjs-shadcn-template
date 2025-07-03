@@ -10,11 +10,12 @@ export const revalidate = 3600
 export default async function BlogListPage({
   searchParams,
 }: {
-  searchParams: { page?: string; pageSize?: string }
+  searchParams: Promise<{ page?: string; pageSize?: string }>
 }) {
   let error: string | null = null
-  const page = Number(searchParams.page) || 1
-  const pageSize = Number(searchParams.pageSize) || 10
+  const resolvedSearchParams = await searchParams
+  const page = Number(resolvedSearchParams.page) || 1
+  const pageSize = Number(resolvedSearchParams.pageSize) || 10
 
   const { posts: allPosts, total }: { posts: NotionPage[]; total: number } =
     await getAllBlogPosts().catch((err) => {

@@ -1,4 +1,4 @@
-import { getNotionPageContent, getBlogPosts } from '@/lib/notion'
+import { getNotionPageContent, getAllBlogPosts } from '@/lib/notion'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import NotionPage from '@/components/NotionPage'
@@ -13,7 +13,7 @@ interface BlogPostPageProps {
 // 重新启用静态路径生成，结合 ISR 使用
 export async function generateStaticParams() {
   try {
-    const posts = await getBlogPosts()
+    const { posts } = await getAllBlogPosts()
     return posts.map((post) => ({
       id: post.id,
     }))

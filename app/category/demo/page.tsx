@@ -15,6 +15,40 @@ interface CategoryItem {
   subcategoryCount?: number
 }
 
+// 定义 CategoryNavigation 组件期望的 props 类型
+interface NavCategory {
+  id: string
+  name: string
+  desc: string
+  sort: number
+  icon?: React.ReactNode
+  subcategories: Array<{
+    id: string
+    name: string
+    desc: string
+  }>
+}
+
+/**
+ * 将从API获取的 CategoryData 转换为 CategoryNavigation 组件可用的格式
+ * @param data CategoryData[]
+ * @returns NavCategory[]
+ */
+const transformCategoriesForNav = (data: CategoryData[]): NavCategory[] => {
+  return data.map((category) => ({
+    id: category.id,
+    name: category.name,
+    desc: category.desc,
+    sort: category.sort,
+    icon: category.icon?.type === 'emoji' ? category.icon.emoji : null,
+    subcategories: category.subcategories.map((sub) => ({
+      id: sub.id,
+      name: sub.name,
+      desc: sub.desc,
+    })),
+  }))
+}
+
 /**
  * 分类组件演示页面
  * 展示所有分类组件的不同布局和样式
@@ -190,7 +224,10 @@ export default function CategoryDemoPage() {
             <div className="border-t border-border"></div>
           </div>
 
-          <CategoryNavigation categories={fullCategories} onCategorySelect={handleCategoryClick} />
+          <CategoryNavigation
+            categories={transformCategoriesForNav(fullCategories)}
+            onCategorySelect={handleCategoryClick}
+          />
         </TabsContent>
       </Tabs>
 
