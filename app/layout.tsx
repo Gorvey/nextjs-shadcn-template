@@ -33,6 +33,7 @@ export default function RootLayout({
               }}
               menu={[
                 { title: '导航', url: '/' },
+                { title: '分类', url: '/category' },
                 { title: '博客', url: '/blog' },
                 { title: 'Blocks', url: '/blocks' },
                 { title: '关于本站', url: '/about' },
@@ -46,6 +47,7 @@ export default function RootLayout({
               }}
               menu={[
                 { title: '导航', url: '/' },
+                { title: '分类', url: '/category' },
                 { title: '博客', url: '/blog' },
                 { title: 'Blocks', url: '/blocks' },
                 { title: '关于本站', url: '/about' },

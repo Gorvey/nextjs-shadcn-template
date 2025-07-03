@@ -23,6 +23,12 @@ export function transformNotionPage(page: PageObjectResponse): NotionPage {
       result[key] = value.title.map((text) => text.plain_text).join('')
     } else if (value.type === 'url') {
       result[key] = value.url || ''
+    } else if (value.type === 'number') {
+      result[key] = value.number
+    } else if (value.type === 'relation') {
+      result[key] = value.relation
+    } else if (value.type === 'rollup') {
+      // 根据 rollup 类型处理
     } else {
       result[key] = ''
     }

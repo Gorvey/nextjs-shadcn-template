@@ -15,11 +15,17 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
+import type { DatabaseObjectResponse } from '@notionhq/client'
+import Image from 'next/image'
+
+type NotionIcon = DatabaseObjectResponse['icon']
 
 interface CategoryItem {
   id: string
   name: string
   desc: string
+  icon?: NotionIcon
+  sort?: number
   count?: number
   subcategoryCount?: number
 }
@@ -28,6 +34,7 @@ interface SubCategoryData {
   id: string
   name: string
   desc: string
+  icon?: NotionIcon
   count?: number
 }
 
@@ -36,6 +43,7 @@ interface FullCategoryData {
   name: string
   desc: string
   sort: number
+  icon?: NotionIcon
   subcategories: SubCategoryData[]
 }
 
@@ -55,43 +63,99 @@ interface LifecycleCategoryGridProps {
 /**
  * 获取分类图标的辅助函数
  */
-const getCategoryIcon = (categoryName: string, size: 'small' | 'medium' | 'large' = 'medium') => {
-  const sizeClass = {
+const getCategoryIcon = (
+  categoryName: string,
+  size: 'small' | 'medium' | 'large' = 'medium',
+  icon?: NotionIcon,
+  parentIcon?: NotionIcon
+) => {
+  const finalIcon = icon || parentIcon
+  const containerSizeClass = {
     small: 'h-3 w-3',
     medium: 'h-4 w-4',
     large: 'h-5 w-5',
   }[size]
 
-  const iconMap: Record<string, React.ReactNode> = {
-    项目启动: <Zap className={cn('text-orange-500', sizeClass)} />,
-    设计阶段: <FileText className={cn('text-purple-500', sizeClass)} />,
-    编码开发: <Code className={cn('text-blue-500', sizeClass)} />,
-    功能实现: <Settings className={cn('text-green-500', sizeClass)} />,
-    调试测试: <Monitor className={cn('text-red-500', sizeClass)} />,
-    构建部署: <Folder className={cn('text-indigo-500', sizeClass)} />,
-    运维监控: <Monitor className={cn('text-cyan-500', sizeClass)} />,
-    AI集成: <Brain className={cn('text-pink-500', sizeClass)} />,
-    学习成长: <BookOpen className={cn('text-yellow-500', sizeClass)} />,
+  const imageSize = {
+    small: 12,
+    medium: 16,
+    large: 20,
+  }[size]
+
+  const emojiSizeClass = {
+    small: 'text-xs',
+    medium: 'text-sm',
+    large: 'text-base',
+  }[size]
+
+  let content: React.ReactNode
+
+  if (finalIcon) {
+    if (finalIcon.type === 'emoji' && 'emoji' in finalIcon) {
+      content = <span className={emojiSizeClass}>{finalIcon.emoji}</span>
+    } else if (finalIcon.type === 'external' && 'external' in finalIcon) {
+      content = (
+        <Image
+          src={finalIcon.external.url}
+          alt={categoryName}
+          width={imageSize}
+          height={imageSize}
+          className="rounded-sm"
+        />
+      )
+    } else if (finalIcon.type === 'file' && 'file' in finalIcon) {
+      content = (
+        <Image
+          src={finalIcon.file.url}
+          alt={categoryName}
+          width={imageSize}
+          height={imageSize}
+          className="rounded-sm"
+        />
+      )
+    }
+  } else {
+    const iconMap: Record<string, React.ReactNode> = {
+      项目启动: <Zap className="text-orange-500 dark:text-orange-300" />,
+      设计阶段: <FileText className="text-purple-500 dark:text-purple-300" />,
+      编码开发: <Code className="text-blue-500 dark:text-blue-300" />,
+      功能实现: <Settings className="text-green-500 dark:text-green-300" />,
+      调试测试: <Monitor className="text-red-500 dark:text-red-300" />,
+      构建部署: <Folder className="text-indigo-500 dark:text-indigo-300" />,
+      运维监控: <Monitor className="text-cyan-500 dark:text-cyan-300" />,
+      AI集成: <Brain className="text-pink-500 dark:text-pink-300" />,
+      学习成长: <BookOpen className="text-yellow-500 dark:text-yellow-300" />,
+    }
+    content = iconMap[categoryName] || <Folder className="text-gray-500 dark:text-gray-400" />
   }
-  return iconMap[categoryName] || <Folder className={cn('text-gray-500', sizeClass)} />
+
+  return (
+    <div className={cn('inline-flex items-center justify-center align-middle', containerSizeClass)}>
+      {content}
+    </div>
+  )
 }
 
 /**
  * 获取分类颜色的辅助函数
  */
-const getCategoryColor = (categoryName: string) => {
-  const colorMap: Record<string, string> = {
-    项目启动: 'border-orange-200 hover:border-orange-300 bg-orange-50/50',
-    设计阶段: 'border-purple-200 hover:border-purple-300 bg-purple-50/50',
-    编码开发: 'border-blue-200 hover:border-blue-300 bg-blue-50/50',
-    功能实现: 'border-green-200 hover:border-green-300 bg-green-50/50',
-    调试测试: 'border-red-200 hover:border-red-300 bg-red-50/50',
-    构建部署: 'border-indigo-200 hover:border-indigo-300 bg-indigo-50/50',
-    运维监控: 'border-cyan-200 hover:border-cyan-300 bg-cyan-50/50',
-    AI集成: 'border-pink-200 hover:border-pink-300 bg-pink-50/50',
-    学习成长: 'border-yellow-200 hover:border-yellow-300 bg-yellow-50/50',
+const getCategoryColor = (sort?: number) => {
+  const colorMap: Record<number, string> = {
+    [-1]: 'border-yellow-200 bg-yellow-50/50 hover:bg-yellow-100/80 dark:bg-yellow-400/10 dark:border-yellow-400/20 dark:hover:bg-yellow-400/20',
+    0: 'border-pink-200 bg-pink-50/50 hover:bg-pink-100/80 dark:bg-pink-400/10 dark:border-pink-400/20 dark:hover:bg-pink-400/20',
+    1: 'border-orange-200 bg-orange-50/50 hover:bg-orange-100/80 dark:bg-orange-400/10 dark:border-orange-400/20 dark:hover:bg-orange-400/20',
+    2: 'border-purple-200 bg-purple-50/50 hover:bg-purple-100/80 dark:bg-purple-400/10 dark:border-purple-400/20 dark:hover:bg-purple-400/20',
+    3: 'border-blue-200 bg-blue-50/50 hover:bg-blue-100/80 dark:bg-blue-400/10 dark:border-blue-400/20 dark:hover:bg-blue-400/20',
+    4: 'border-green-200 bg-green-50/50 hover:bg-green-100/80 dark:bg-green-400/10 dark:border-green-400/20 dark:hover:bg-green-400/20',
+    5: 'border-red-200 bg-red-50/50 hover:bg-red-100/80 dark:bg-red-400/10 dark:border-red-400/20 dark:hover:bg-red-400/20',
+    6: 'border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100/80 dark:bg-indigo-400/10 dark:border-indigo-400/20 dark:hover:bg-indigo-400/20',
+    7: 'border-cyan-200 bg-cyan-50/50 hover:bg-cyan-100/80 dark:bg-cyan-400/10 dark:border-cyan-400/20 dark:hover:bg-cyan-400/20',
+    8: 'border-teal-200 bg-teal-50/50 hover:bg-teal-100/80 dark:bg-teal-400/10 dark:border-teal-400/20 dark:hover:bg-teal-400/20',
   }
-  return colorMap[categoryName] || 'border-gray-200 hover:border-gray-300 bg-gray-50/50'
+  if (sort !== undefined && colorMap[sort]) {
+    return colorMap[sort]
+  }
+  return 'border-gray-200 bg-gray-50/50 hover:bg-gray-100/80 dark:bg-gray-400/10 dark:border-gray-400/20 dark:hover:bg-gray-400/20'
 }
 
 /**
@@ -120,137 +184,49 @@ function ThreeColumnLifecycleLayout({
     .map((name) => categories.find((cat) => cat.name === name))
     .filter(Boolean) as FullCategoryData[]
 
-  // 手风琴展开状态
-  const [openLifecycleId, setOpenLifecycleId] = useState<string | null>(null)
-
-  // 渲染生命周期主分类（手风琴）
-  const renderLifecycleAccordion = () => (
-    <div className="space-y-3">
-      <div className="text-center">
-        <h2 className="text-lg font-semibold mb-2">开发生命周期</h2>
-      </div>
-      {lifecycleCategories.map((category, index) => {
-        const isOpen = openLifecycleId === category.id
-        return (
-          <div key={category.id}>
-            {/* 主分类卡片 */}
-            <div
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-lg border-2 cursor-pointer select-none transition-all duration-200',
-                getCategoryColor(category.name),
-                isOpen && 'ring-2 ring-primary',
-                'hover:shadow-md mb-1'
-              )}
-              onClick={() => setOpenLifecycleId(isOpen ? null : category.id)}
-            >
-              {/* 步骤编号 */}
-              <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                {index + 1}
-              </div>
-              <div className="p-1.5 rounded bg-white/80 shadow-sm">
-                {getCategoryIcon(category.name, 'small')}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium truncate">{category.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {category.subcategories.length}
-                    </Badge>
-                    <ChevronRight
-                      className={cn(
-                        'h-3 w-3 text-muted-foreground transition-transform',
-                        isOpen && 'rotate-90'
-                      )}
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                  {category.desc}
-                </p>
-              </div>
-            </div>
-            {/* 子分类区域 */}
-            {isOpen && (
-              <div className="space-y-2 pl-10 pr-2 py-2">
-                {category.subcategories.map((subcategory) => (
-                  <Card
-                    key={subcategory.id}
-                    className={cn(
-                      'cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
-                      getCategoryColor(category.name)
-                    )}
-                    onClick={() => onCategoryClick?.(category.id, subcategory.id)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="p-1.5 rounded bg-white/80 shadow-sm">
-                          {getCategoryIcon(category.name, 'small')}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="text-sm font-medium truncate">{subcategory.name}</h4>
-                            <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                            {subcategory.desc}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      })}
-    </div>
+  // 默认选择"项目启动"或第一个生命周期阶段
+  const defaultLifecycleCategory =
+    lifecycleCategories.find((cat) => cat.name === '项目启动') || lifecycleCategories[0]
+  const [selectedLifecycleId, setSelectedLifecycleId] = useState<string | null>(
+    defaultLifecycleCategory?.id || null
   )
 
-  // 渲染分类卡片（AI/学习）
-  const renderCategoryWithSubs = (category: FullCategoryData, columnType: 'ai' | 'learning') => (
-    <div key={category.id} className="space-y-4">
-      {/* 主分类头部 */}
-      <div className="text-center">
+  const selectedCategory = lifecycleCategories.find((cat) => cat.id === selectedLifecycleId)
+
+  // 渲染学习成长和 AI 集成模块
+  const renderHorizontalCategorySection = (category: FullCategoryData) => (
+    <div key={category.id} className="w-full">
+      <div className="text-center mb-6">
         <div
           className={cn(
-            'inline-flex items-center gap-2 px-4 py-2 rounded-lg',
-            getCategoryColor(category.name),
+            'inline-flex items-center gap-3 px-4 py-2 rounded-lg',
+            getCategoryColor(category.sort),
             'border-2'
           )}
         >
-          {getCategoryIcon(category.name, 'large')}
+          {getCategoryIcon(category.name, 'large', category.icon)}
           <h2 className="text-lg font-semibold">{category.name}</h2>
         </div>
         <p className="text-sm text-muted-foreground mt-2">{category.desc}</p>
       </div>
-      {/* 子分类列表 */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {category.subcategories.map((subcategory) => (
           <Card
             key={subcategory.id}
             className={cn(
-              'cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
-              getCategoryColor(category.name)
+              'cursor-pointer transition-all duration-200',
+              getCategoryColor(category.sort)
             )}
             onClick={() => onCategoryClick?.(category.id, subcategory.id)}
           >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="p-1.5 rounded bg-white/80 shadow-sm">
-                  {getCategoryIcon(category.name, 'small')}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-sm font-medium truncate">{subcategory.name}</h3>
-                    <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                    {subcategory.desc}
-                  </p>
-                </div>
+            <CardContent className="p-4 flex flex-col items-center text-center">
+              <div className="p-1.5 rounded-lg bg-background/80 shadow-sm mb-2">
+                {getCategoryIcon(subcategory.name, 'small', subcategory.icon, category.icon)}
               </div>
+              <h4 className="text-sm font-medium truncate w-full">{subcategory.name}</h4>
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1">
+                {subcategory.desc}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -259,27 +235,102 @@ function ThreeColumnLifecycleLayout({
   )
 
   return (
-    <div className={cn('w-full', className)}>
-      {/* 桌面端：3列布局 */}
-      <div className="hidden lg:grid lg:grid-cols-4 lg:gap-6">
-        {/* AI集成列 - 1份 */}
-        <div className="col-span-1">{aiCategory && renderCategoryWithSubs(aiCategory, 'ai')}</div>
-        {/* 学习成长列 - 1份 */}
-        <div className="col-span-1">
-          {learningCategory && renderCategoryWithSubs(learningCategory, 'learning')}
+    <div className={cn('w-full space-y-12', className)}>
+      {/* 第一行：学习成长 */}
+      {learningCategory && renderHorizontalCategorySection(learningCategory)}
+
+      {/* 第二行：AI集成 */}
+      {aiCategory && renderHorizontalCategorySection(aiCategory)}
+
+      {/* 第三行：开发生命周期 */}
+      {lifecycleCategories.length > 0 && (
+        <div className="w-full">
+          <div className="text-center mb-6">
+            <div
+              className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2',
+                'border-gray-200 bg-gray-50/50 dark:bg-gray-400/10 dark:border-gray-400/20'
+              )}
+            >
+              <h2 className="text-lg font-semibold">开发生命周期</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">按照前端开发流程顺序排列的核心阶段</p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* 左侧：一级分类列表 */}
+            <div className="w-full lg:w-1/3 xl:w-1/4 space-y-2">
+              {lifecycleCategories.map((category, index) => (
+                <div
+                  key={category.id}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 rounded-lg border-2 cursor-pointer select-none transition-all duration-200',
+                    getCategoryColor(category.sort),
+                    selectedLifecycleId === category.id ? 'ring-2 ring-primary shadow-md' : '',
+                    'mb-1'
+                  )}
+                  onClick={() => setSelectedLifecycleId(category.id)}
+                >
+                  <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    {index + 1}
+                  </div>
+                  <div className="p-1.5 rounded bg-background/80 shadow-sm">
+                    {getCategoryIcon(category.name, 'small', category.icon)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium truncate">{category.name}</h3>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70" />
+                </div>
+              ))}
+            </div>
+
+            {/* 右侧：二级分类网格 */}
+            <div className="flex-1">
+              {selectedCategory ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {selectedCategory.subcategories.map((subcategory) => (
+                    <Card
+                      key={subcategory.id}
+                      className={cn(
+                        'cursor-pointer transition-all duration-200',
+                        getCategoryColor(selectedCategory.sort)
+                      )}
+                      onClick={() => onCategoryClick?.(selectedCategory.id, subcategory.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-1.5 rounded bg-background/80 shadow-sm">
+                            {getCategoryIcon(
+                              subcategory.name,
+                              'small',
+                              subcategory.icon,
+                              selectedCategory.icon
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="text-sm font-medium truncate">{subcategory.name}</h4>
+                              <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            </div>
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                              {subcategory.desc}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full rounded-lg border-2 border-dashed text-muted-foreground p-8">
+                  请从左侧选择一个开发阶段以查看其子分类。
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-        {/* 生命周期列 - 2份（手风琴） */}
-        <div className="col-span-2">{renderLifecycleAccordion()}</div>
-      </div>
-      {/* 移动端：垂直布局 */}
-      <div className="lg:hidden space-y-8">
-        {/* AI集成 */}
-        {aiCategory && renderCategoryWithSubs(aiCategory, 'ai')}
-        {/* 学习成长 */}
-        {learningCategory && renderCategoryWithSubs(learningCategory, 'learning')}
-        {/* 生命周期（手风琴） */}
-        {renderLifecycleAccordion()}
-      </div>
+      )}
     </div>
   )
 }
@@ -312,54 +363,37 @@ function LifecycleLayout({ categories, onCategoryClick, className }: CategoryGri
     <Card
       key={category.id}
       className={cn(
-        'cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02]',
-        getCategoryColor(category.name),
-        isAuxiliary && 'border-2'
+        'group cursor-pointer overflow-hidden transition-all duration-300',
+        getCategoryColor(category.sort),
+        isAuxiliary ? 'lg:col-span-1' : 'lg:col-span-2'
       )}
       onClick={() => onCategoryClick?.(category.id)}
     >
-      <CardContent className={cn('p-4', isAuxiliary && 'p-5')}>
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-white/80 shadow-sm">
-            {getCategoryIcon(category.name, isAuxiliary ? 'large' : 'medium')}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-2">
-              <h3
-                className={cn(
-                  'font-semibold text-foreground truncate',
-                  isAuxiliary ? 'text-base' : 'text-sm'
-                )}
-              >
-                {category.name}
-              </h3>
-              <div className="flex items-center gap-2">
-                {category.subcategoryCount && (
-                  <Badge variant="secondary" className="text-xs">
-                    {category.subcategoryCount}
-                  </Badge>
-                )}
-                <ChevronRight className="h-3 w-3 text-muted-foreground" />
-              </div>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-background/80 shadow-md">
+              {getCategoryIcon(category.name, 'large', category.icon)}
             </div>
-
-            <p
-              className={cn(
-                'text-muted-foreground line-clamp-2 leading-relaxed',
-                isAuxiliary ? 'text-sm' : 'text-xs'
-              )}
-            >
-              {category.desc}
-            </p>
-
-            {category.count && (
-              <div className="mt-2 pt-2 border-t border-border/50">
-                <span className="text-xs text-muted-foreground">{category.count} 项资源</span>
-              </div>
+            <div>
+              <h3 className="font-semibold text-lg">{category.name}</h3>
+              <p className="text-sm text-muted-foreground">{category.desc}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {category.subcategoryCount && (
+              <Badge variant="secondary" className="text-xs">
+                {category.subcategoryCount}
+              </Badge>
             )}
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </div>
         </div>
+        {category.count && (
+          <div className="mt-3 pt-3 border-t border-border/50">
+            <span className="text-xs text-muted-foreground">{category.count} 项资源</span>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
@@ -448,7 +482,7 @@ export function CategoryGrid({
             className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors px-3 py-1.5"
             onClick={() => onCategoryClick?.(category.id)}
           >
-            <span className="mr-1">{getCategoryIcon(category.name, 'small')}</span>
+            <span className="mr-1">{getCategoryIcon(category.name, 'small', category.icon)}</span>
             {category.name}
             {category.subcategoryCount && (
               <span className="ml-1 text-xs opacity-70">({category.subcategoryCount})</span>
@@ -462,33 +496,22 @@ export function CategoryGrid({
   // 紧凑布局
   if (layout === 'compact') {
     return (
-      <div
-        className={cn(
-          'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3',
-          className
-        )}
-      >
+      <div className={cn('grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3', className)}>
         {categories.map((category) => (
           <Card
             key={category.id}
             className={cn(
-              'cursor-pointer transition-all duration-200 hover:shadow-md',
-              getCategoryColor(category.name)
+              'group cursor-pointer transition-all duration-200',
+              getCategoryColor(category.sort)
             )}
             onClick={() => onCategoryClick?.(category.id)}
           >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                {getCategoryIcon(category.name, 'medium')}
-                <span className="text-sm font-medium truncate">{category.name}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                {category.subcategoryCount && (
-                  <Badge variant="secondary" className="text-xs">
-                    {category.subcategoryCount}
-                  </Badge>
-                )}
-                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-background/80 shadow">
+                  {getCategoryIcon(category.name, 'small', category.icon)}
+                </div>
+                <h4 className="text-sm font-medium truncate flex-1">{category.name}</h4>
               </div>
             </CardContent>
           </Card>
@@ -499,46 +522,39 @@ export function CategoryGrid({
 
   // 默认标准布局
   return (
-    <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4', className)}>
+    <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6', className)}>
       {categories.map((category) => (
         <Card
           key={category.id}
           className={cn(
-            'cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02]',
-            getCategoryColor(category.name)
+            'group cursor-pointer overflow-hidden transition-all duration-300',
+            getCategoryColor(category.sort)
           )}
           onClick={() => onCategoryClick?.(category.id)}
         >
           <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-white/80 shadow-sm">
-                {getCategoryIcon(category.name, 'large')}
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 rounded-lg bg-background/80 shadow-lg">
+                {getCategoryIcon(category.name, 'large', category.icon)}
               </div>
-
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-foreground">{category.name}</h3>
-                  <div className="flex items-center gap-2">
-                    {category.subcategoryCount && (
-                      <Badge variant="secondary" className="text-xs">
-                        {category.subcategoryCount}
-                      </Badge>
-                    )}
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-
-                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                  {category.desc}
-                </p>
-
-                {category.count && (
-                  <div className="mt-3 pt-3 border-t border-border/50">
-                    <span className="text-xs text-muted-foreground">{category.count} 项资源</span>
-                  </div>
-                )}
+              <div>
+                <h3 className="font-semibold text-xl tracking-tight">{category.name}</h3>
+                <p className="text-sm text-muted-foreground">{category.desc}</p>
               </div>
             </div>
+            <div className="flex items-center justify-between">
+              {category.subcategoryCount && (
+                <Badge variant="secondary" className="text-xs">
+                  {category.subcategoryCount}
+                </Badge>
+              )}
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+            {category.count && (
+              <div className="mt-3 pt-3 border-t border-border/50">
+                <span className="text-xs text-muted-foreground">{category.count} 项资源</span>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
@@ -551,12 +567,24 @@ export function CategoryGrid({
  */
 export function CategoryTags({ categories, onCategoryClick, className }: CategoryGridProps) {
   return (
-    <CategoryGrid
-      categories={categories}
-      onCategoryClick={onCategoryClick}
-      className={className}
-      layout="tags"
-    />
+    <div className={cn('flex flex-wrap gap-3', className)}>
+      {categories.map((category) => (
+        <Badge
+          key={category.id}
+          variant="outline"
+          className={cn(
+            'cursor-pointer transition-colors duration-200 px-4 py-2 text-sm',
+            'border-border hover:bg-accent hover:text-accent-foreground',
+            'dark:hover:bg-accent dark:hover:text-accent-foreground'
+          )}
+          onClick={() => onCategoryClick?.(category.id)}
+        >
+          {getCategoryIcon(category.name, 'small', category.icon)}
+          <span className="ml-2">{category.name}</span>
+          {category.count && <span className="ml-2 text-muted-foreground">({category.count})</span>}
+        </Badge>
+      ))}
+    </div>
   )
 }
 

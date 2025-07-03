@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
-import { getCategoryData, getMockCategoryData, CategoryData } from '@/lib/services/category.service'
+// import { getMockCategoryData } from '@/lib/services/notion.service'
+import type { CategoryData } from '@/types/notion'
 
 /**
  * 前端开发分类页面
@@ -15,12 +16,18 @@ export default function CategoryPage() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const data = await getCategoryData()
-        setCategories(data)
+        const response = await fetch('/api/v1/category')
+        const result = await response.json()
+        if (result.success) {
+          setCategories(result.data)
+        } else {
+          throw new Error(result.message || 'Failed to load categories from API')
+        }
       } catch (error) {
         console.error('Failed to load categories:', error)
         // 使用模拟数据作为后备
-        setCategories(getMockCategoryData())
+        // const mockData = getMockCategoryData()
+        // setCategories(mockData)
       } finally {
         setLoading(false)
       }
@@ -64,18 +71,6 @@ export default function CategoryPage() {
         onCategoryClick={handleCategoryClick}
         className="mb-16"
       />
-
-      {/* 页面说明 */}
-      <div className="mt-16 text-center space-y-4">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-lg font-semibold mb-4">布局说明</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            左侧两列展示贯穿整个开发过程的辅助能力：AI集成工具和学习成长资源，
-            每个分类直接展示其子分类，便于快速访问具体工具。
-            右侧展示按时间顺序排列的7个核心开发阶段， 从项目启动到运维监控的完整开发生命周期。
-          </p>
-        </div>
-      </div>
     </div>
   )
 }

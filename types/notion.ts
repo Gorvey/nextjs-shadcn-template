@@ -14,7 +14,9 @@ export interface NotionPage {
   cover?: DatabaseObjectResponse['cover']
   [key: string]:
     | string
+    | number
     | Select[]
+    | { id: string }[]
     | DatabaseObjectResponse['icon']
     | DatabaseObjectResponse['cover']
     | null
@@ -31,4 +33,21 @@ export interface NotionDatabase {
   id: string
   last_edited_time: string
   properties: DatabaseObjectResponse['properties']
+}
+
+export interface SubCategoryData {
+  id: string
+  name: string
+  desc: string
+  count?: number
+  icon?: DatabaseObjectResponse['icon']
+}
+
+export interface CategoryData {
+  id: string
+  name: string
+  desc: string
+  sort: number
+  icon?: DatabaseObjectResponse['icon']
+  subcategories: SubCategoryData[]
 }

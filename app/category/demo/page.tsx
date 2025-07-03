@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { CategoryGrid, CategoryTags, ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
 import { CategoryNavigation } from '@/components/CategoryNavigation'
-import { getCategoryData, getMockCategoryData, CategoryData } from '@/lib/services/category.service'
+import { getMockCategoryData } from '@/lib/services/notion.service'
+import type { CategoryData } from '@/types/notion'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface CategoryItem {
@@ -26,7 +27,13 @@ export default function CategoryDemoPage() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const data = await getCategoryData()
+        const response = await fetch('/api/v1/category')
+        const result = await response.json()
+        if (!result.success) {
+          throw new Error(result.message || 'Failed to fetch categories')
+        }
+        const data: CategoryData[] = result.data
+
         setFullCategories(data)
 
         // 转换为简化格式

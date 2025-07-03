@@ -1,83 +1,86 @@
-import { getBlogPosts } from '@/lib/notion'
+import { getAllBlogPosts } from '@/lib/notion'
 import Link from 'next/link'
 import type { NotionPage } from '@/types/notion'
+import { Badge } from '@/components/ui/badge'
+import { PaginationWithLinks } from '@/components/ui/pagination-with-links'
 
 // 设置 ISR 缓存时间为 1 小时（3600 秒）
 export const revalidate = 3600
 
-export default async function BlogListPage() {
-  let posts: NotionPage[] = []
+export default async function BlogListPage({
+  searchParams,
+}: {
+  searchParams: { page?: string; pageSize?: string }
+}) {
   let error: string | null = null
+  const page = Number(searchParams.page) || 1
+  const pageSize = Number(searchParams.pageSize) || 10
 
-  try {
-    posts = await getBlogPosts()
-  } catch (err) {
-    error = err instanceof Error ? err.message : '获取博客文章失败'
-    console.error('Error fetching blog posts:', err)
-  }
+  const { posts: allPosts, total }: { posts: NotionPage[]; total: number } =
+    await getAllBlogPosts().catch((err) => {
+      error = err instanceof Error ? err.message : '获取博客文章失败'
+      console.error('Error fetching blog posts:', err)
+      return { posts: [], total: 0 }
+    })
+
+  // 手动进行分页
+  const paginatedPosts = allPosts.slice((page - 1) * pageSize, page * pageSize)
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">博客文章</h1>
+    <div className="container mx-auto max-w-4xl px-4 py-8">
+      <h1 className="mb-8 text-4xl font-extrabold tracking-tight lg:text-5xl">博客文章</h1>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
+        <div className="mb-8 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           {error}
         </div>
       )}
 
-      {posts.length === 0 && !error && (
-        <div className="text-gray-500 text-center py-8">暂无博客文章</div>
+      {paginatedPosts.length === 0 && !error && (
+        <div className="py-8 text-center text-gray-500">暂无博客文章</div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <article
-            key={post.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-          >
-            {post.cover && (
-              <div className="aspect-video bg-gray-200">
-                {/* 封面图片处理 */}
-                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                  <span className="text-gray-500">封面图片</span>
-                </div>
-              </div>
-            )}
+      <div className="space-y-4">
+        {paginatedPosts.map((post) => (
+          <article key={post.id}>
+            <Link
+              href={`/blog/${post.id}`}
+              className="group block rounded-lg border p-6 transition-all hover:border-primary/60 hover:shadow-md"
+            >
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900 transition-colors group-hover:text-primary dark:text-gray-50">
+                {getPostTitle(post)}
+              </h2>
+              <p className="mt-2 text-gray-500 dark:text-gray-400">{getPostDescription(post)}</p>
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <time dateTime={post.created_time}>
+                    {new Date(post.created_time).toLocaleDateString('zh-CN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </time>
 
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-2 line-clamp-2">{getPostTitle(post)}</h2>
-
-              <p className="text-gray-600 mb-4 line-clamp-3">{getPostDescription(post)}</p>
-
-              <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                <time dateTime={post.created_time}>
-                  {new Date(post.created_time).toLocaleDateString('zh-CN')}
-                </time>
-
-                {getPostTags(post).length > 0 && (
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     {getPostTags(post)
-                      .slice(0, 2)
-                      .map((tag, index) => (
-                        <span key={index} className="bg-gray-100 px-2 py-1 rounded-full text-xs">
+                      .slice(0, 3)
+                      .map((tag) => (
+                        <Badge key={tag} variant="secondary">
                           {tag}
-                        </span>
+                        </Badge>
                       ))}
                   </div>
-                )}
+                </div>
               </div>
-
-              <Link
-                href={`/blog/${post.id}`}
-                className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-              >
-                阅读更多
-              </Link>
-            </div>
+            </Link>
           </article>
         ))}
       </div>
+      {total > pageSize && (
+        <div className="mt-8">
+          <PaginationWithLinks page={page} pageSize={pageSize} totalCount={total} />
+        </div>
+      )}
     </div>
   )
 }
