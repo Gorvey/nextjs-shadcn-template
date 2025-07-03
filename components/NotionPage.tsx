@@ -9,7 +9,7 @@ interface NotionPageProps {
 
 export default function NotionPage({ recordMap, rootPageId }: NotionPageProps) {
   return (
-    <article className="notion-container">
+    <article className="notion-container !max-w-[800px] mx-auto">
       <NotionRenderer
         recordMap={recordMap}
         fullPage={false}
