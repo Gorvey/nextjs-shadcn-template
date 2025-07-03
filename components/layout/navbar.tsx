@@ -3,6 +3,7 @@
 import { Menu, Search } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -71,14 +72,14 @@ const Navbar = ({
         <div className="mx-auto px-4 h-full flex items-center justify-between">
           {/* 左侧 Logo */}
           <div className="flex items-center opacity-100">
-            <a className="inline-block" aria-label={`${logo.title} - 返回首页`} href={logo.url}>
+            <Link className="inline-block" aria-label={`${logo.title} - 返回首页`} href={logo.url}>
               <div className="flex items-center gap-2">
                 <img src="/logo.png" alt="Next.js Logo" className="h-10 w-auto" />
                 <h2 className="text-sm sm:text-md md:text-lg font-bold tracking-wide hover:text-primary transition-all duration-400 animate-in fade-in zoom-in-90 hover:scale-105">
                   {logo.title}
                 </h2>
               </div>
-            </a>
+            </Link>
           </div>
 
           {/* 中间导航菜单 - 桌面端 */}
@@ -87,7 +88,7 @@ const Navbar = ({
               <TabsList className="border-none p-1 h-auto gap-6">
                 {menu.map((item, index) => (
                   <TabsTrigger key={item.title} value={item.title} asChild>
-                    <a href={item.url}>{item.title}</a>
+                    <Link href={item.url}>{item.title}</Link>
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -126,23 +127,23 @@ const Navbar = ({
                   <SheetContent className="overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>
-                        <a href={logo.url} className="flex items-center gap-2">
+                        <Link href={logo.url} className="flex items-center gap-2">
                           <img src="/logo.png" alt="Next.js Logo" className="h-6 w-auto" />
                           <span>{logo.title}</span>
-                        </a>
+                        </Link>
                       </SheetTitle>
                     </SheetHeader>
                     <div className="flex flex-col gap-6 p-4">
                       <div className="flex w-full flex-col gap-4">
                         {menu.map((item) => (
-                          <a
+                          <Link
                             key={item.title}
                             href={item.url}
                             className="text-base font-semibold py-2"
                             onClick={() => setIsOpen(false)}
                           >
                             {item.title}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
