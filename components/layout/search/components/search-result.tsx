@@ -1,8 +1,7 @@
-import * as React from 'react'
 import { CommandItem } from '@/components/ui/command'
-import { SearchResultItem } from './search-result-item'
 import type { SearchResult as SearchResultType } from '../types'
-import { getDisplayName, getDescription, getTags } from '../utils/utils'
+import { getDescription, getDisplayName, getTags } from '../utils/utils'
+import { SearchResultItem } from './search-result-item'
 
 interface SearchResultProps {
   item: SearchResultType

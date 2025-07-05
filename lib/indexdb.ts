@@ -1,5 +1,5 @@
-import { openDB, DBSchema } from 'idb'
-import type { NotionPage, NotionDatabase } from '@/types/notion'
+import { type DBSchema, openDB } from 'idb'
+import type { NotionDatabase, NotionPage } from '@/types/notion'
 
 interface NotionDB extends DBSchema {
   database: {

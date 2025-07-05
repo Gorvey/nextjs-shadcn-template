@@ -1,7 +1,9 @@
 'use client'
 
-import { useMemo, useEffect } from 'react'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RefreshCw } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -9,11 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
-import { RefreshCw } from 'lucide-react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDataStore } from '@/stores/data.store'
 import { useViewStore, type ViewType } from '@/stores/view.store'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
 
 export function FilterSection() {
   const viewType = useViewStore((state) => state.viewType)
@@ -92,7 +92,7 @@ export function FilterSection() {
           </Select>
         </div>
       ) : (
-        <div></div>
+        <div />
       )}
       <div className="flex items-center gap-4">
         <div className="flex items-center">

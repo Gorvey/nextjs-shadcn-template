@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useEffect } from 'react'
-import { useDataStore } from '@/stores/data.store'
-import { useViewStore } from '@/stores/view.store'
+import type React from 'react'
+import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { ResourceContainer as CardResourceContainer } from '@/components/home/Card/ResourceContainer'
 import { ResourceContainer as GridResourceContainer } from '@/components/home/Grid/ResourceContainer'
-import type { NotionPage, NotionDatabase } from '@/types/notion'
+import { useDataStore } from '@/stores/data.store'
+import { useViewStore } from '@/stores/view.store'
+import type { NotionDatabase, NotionPage } from '@/types/notion'
 
 interface ClientWrapperProps {
   children: React.ReactNode

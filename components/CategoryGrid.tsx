@@ -1,22 +1,22 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-  ChevronRight,
-  Folder,
-  FileText,
-  Zap,
-  Code,
-  Settings,
-  Monitor,
-  Brain,
-  BookOpen,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useState } from 'react'
 import type { DatabaseObjectResponse } from '@notionhq/client'
+import {
+  BookOpen,
+  Brain,
+  ChevronRight,
+  Code,
+  FileText,
+  Folder,
+  Monitor,
+  Settings,
+  Zap,
+} from 'lucide-react'
 import Image from 'next/image'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 type NotionIcon = DatabaseObjectResponse['icon']
 
@@ -261,8 +261,9 @@ function ThreeColumnLifecycleLayout({
             {/* 左侧：一级分类列表 */}
             <div className="w-full lg:w-1/3 xl:w-1/4 space-y-2">
               {lifecycleCategories.map((category, index) => (
-                <div
+                <button
                   key={category.id}
+                  tabIndex={0}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-lg border-2 cursor-pointer select-none transition-all duration-200',
                     getCategoryColor(category.sort),
@@ -270,6 +271,12 @@ function ThreeColumnLifecycleLayout({
                     'mb-1'
                   )}
                   onClick={() => setSelectedLifecycleId(category.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setSelectedLifecycleId(category.id)
+                    }
+                  }}
                 >
                   <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     {index + 1}
@@ -281,7 +288,7 @@ function ThreeColumnLifecycleLayout({
                     <h3 className="text-sm font-medium truncate">{category.name}</h3>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70" />
-                </div>
+                </button>
               ))}
             </div>
 
@@ -415,7 +422,6 @@ function LifecycleLayout({ categories, onCategoryClick, className }: CategoryGri
       {/* 主要生命周期区域 - 右侧 */}
       <div className="flex-1">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-foreground mb-2"></h2>
           <div className={cn('inline-flex items-center gap-2 px-4 py-2 rounded-lg', 'border-2')}>
             <h2 className="text-lg font-semibold">开发生命周期</h2>
           </div>

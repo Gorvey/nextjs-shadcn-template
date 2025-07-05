@@ -1,8 +1,13 @@
-import type { DatabaseObjectResponse } from '@notionhq/client'
+import type { PageObjectResponse } from '@notionhq/client'
 
 interface Select {
   id: string
   name: string
+}
+
+interface FileInfo {
+  type: 'file' | 'external'
+  url: string
 }
 
 export interface NotionPage {
@@ -10,15 +15,19 @@ export interface NotionPage {
   id: string
   created_time: string
   last_edited_time: string
-  icon?: DatabaseObjectResponse['icon']
-  cover?: DatabaseObjectResponse['cover']
+  icon?: PageObjectResponse['icon']
+  cover?: PageObjectResponse['cover']
   [key: string]:
     | string
     | number
+    | boolean
     | Select[]
+    | Select
     | { id: string }[]
-    | DatabaseObjectResponse['icon']
-    | DatabaseObjectResponse['cover']
+    | FileInfo[]
+    | any[]
+    | PageObjectResponse['icon']
+    | PageObjectResponse['cover']
     | null
     | undefined
 }
@@ -32,7 +41,7 @@ export interface NotionFilter {
 export interface NotionDatabase {
   id: string
   last_edited_time: string
-  properties: DatabaseObjectResponse['properties']
+  properties: PageObjectResponse['properties']
 }
 
 export interface SubCategoryData {
@@ -40,7 +49,7 @@ export interface SubCategoryData {
   name: string
   desc: string
   count?: number
-  icon?: DatabaseObjectResponse['icon']
+  icon?: PageObjectResponse['icon']
 }
 
 export interface CategoryData {
@@ -48,6 +57,6 @@ export interface CategoryData {
   name: string
   desc: string
   sort: number
-  icon?: DatabaseObjectResponse['icon']
+  icon?: PageObjectResponse['icon']
   subcategories: SubCategoryData[]
 }

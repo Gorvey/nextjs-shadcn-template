@@ -1,4 +1,3 @@
-import * as React from 'react'
 import type { SearchResult } from '../types'
 
 // 获取显示名称

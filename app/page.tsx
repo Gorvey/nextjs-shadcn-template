@@ -1,6 +1,6 @@
+import { ClientWrapper } from '@/components/home/ClientWrapper'
 import { FilterSection } from '@/components/home/FilterSection'
 import { getDatabase, getDatabaseDetails } from '@/lib/notion'
-import { ClientWrapper } from '@/components/home/ClientWrapper'
 
 // 启用ISR：每60秒重新生成页面
 export const revalidate = 60

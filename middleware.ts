@@ -1,10 +1,10 @@
-import { withAuth } from 'next-auth/middleware'
-import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import type { JWT } from 'next-auth/jwt'
+import { withAuth } from 'next-auth/middleware'
 
 export default withAuth(
-  function middleware(req: NextRequest) {
+  function middleware(_req: NextRequest) {
     return NextResponse.next()
   },
   {

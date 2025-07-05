@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import type { ClientSafeProvider } from 'next-auth/react'
 import { getProviders } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SignInButton } from './signin-button'
-import type { ClientSafeProvider } from 'next-auth/react'
 
 export default function SignIn() {
   const [providers, setProviders] = useState<Record<string, ClientSafeProvider> | null>(null)
@@ -35,7 +35,7 @@ export default function SignIn() {
         <CardContent>
           <div className="space-y-4">
             {loading ? (
-              <div className="animate-pulse bg-gray-200 h-10 rounded"></div>
+              <div className="animate-pulse bg-gray-200 h-10 rounded" />
             ) : (
               providers &&
               Object.values(providers).map((provider) => (

@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { Client } from '@notionhq/client'
+import { Client, type PageObjectResponse } from '@notionhq/client'
+import { type NextRequest, NextResponse } from 'next/server'
 import { transformNotionPage } from '@/utils/notion'
-import { PageObjectResponse } from '@notionhq/client'
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN })
 
@@ -20,9 +19,9 @@ export async function POST(request: NextRequest) {
       searchDatabase(process.env.NOTION_BLOG_DATABASE_ID, query, 'blog'),
     ])
 
-    const results = searchResults
-      .map((result) => (result.status === 'fulfilled' ? result.value : []))
-      .flat()
+    const results = searchResults.flatMap((result) =>
+      result.status === 'fulfilled' ? result.value : []
+    )
 
     return NextResponse.json({ results })
   } catch (error) {

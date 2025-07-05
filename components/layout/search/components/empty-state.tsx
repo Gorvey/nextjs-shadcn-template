@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Search, SearchX } from 'lucide-react'
 
 interface EmptyStateProps {
@@ -31,7 +30,8 @@ export function EmptyState({ query, type }: EmptyStateProps) {
         尝试使用不同的关键词，或者检查拼写是否正确
       </p>
       <div className="mt-3 text-xs text-muted-foreground">
-        搜索词：<span className="font-mono bg-muted px-1.5 py-0.5 rounded">{query}</span>
+        搜索词：
+        <span className="font-mono bg-muted px-1.5 py-0.5 rounded">{query}</span>
       </div>
     </div>
   )

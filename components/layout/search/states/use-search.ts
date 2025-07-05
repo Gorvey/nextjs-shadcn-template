@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import type { SearchResult, SearchState } from '../types'
+import { useEffect, useRef, useState } from 'react'
+import type { SearchState } from '../types'
 
 export function useSearch() {
   const [state, setState] = useState<SearchState>({

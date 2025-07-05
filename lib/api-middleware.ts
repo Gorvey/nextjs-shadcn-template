@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
@@ -99,7 +99,7 @@ export async function validateRequestBody<T>(
   try {
     const body = await request.json()
     return validator(body)
-  } catch (error) {
+  } catch (_error) {
     throw new Error('请求体格式无效')
   }
 }

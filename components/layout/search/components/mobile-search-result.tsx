@@ -1,6 +1,5 @@
-import * as React from 'react'
-import { SearchResultItem } from './search-result-item'
 import type { SearchResult } from '../types'
+import { SearchResultItem } from './search-result-item'
 
 interface MobileSearchResultProps {
   item: SearchResult

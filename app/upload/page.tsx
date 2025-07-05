@@ -1,17 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import { ResourceItem } from '@/components/home/Card/ResourceItem'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import type { NotionDatabase, NotionPage } from '@/types/notion'
-import { getDatabaseDetailsFromCache } from '@/lib/indexdb'
 import { cn } from '@/lib/utils'
-import { ImageUpload } from '@/components/ui/image-upload'
-import { ResourceItem } from '@/components/home/Card/ResourceItem'
+import type { NotionDatabase, NotionPage } from '@/types/notion'
 
 export default function UploadPage() {
   const { data: session, status } = useSession()
@@ -48,7 +47,7 @@ export default function UploadPage() {
     console.log('Upload页面session状态:', { status, session })
 
     if (status === 'unauthenticated') {
-      const currentUrl = window.location.href
+      const _currentUrl = window.location.href
       const loginUrl = `/auth/signin?callbackUrl=${encodeURIComponent('/upload')}`
       console.log('未登录，重定向到:', loginUrl)
       router.push(loginUrl)
@@ -85,7 +84,7 @@ export default function UploadPage() {
             url: value as string,
           }
           break
-        case 'multi_select':
+        case 'multi_select': {
           const values: string[] = Array.isArray(value)
             ? value
             : typeof value === 'string'
@@ -96,6 +95,7 @@ export default function UploadPage() {
             multi_select: values.map((name) => ({ name })),
           }
           break
+        }
         case 'rich_text':
           properties[key] = {
             rich_text: [
@@ -564,7 +564,7 @@ export default function UploadPage() {
                   property.type === 'rich_text' ||
                   property.type === 'url'
               )
-              .sort(([keyA, propertyA], [keyB, propertyB]) => {
+              .sort(([_keyA, propertyA], [_keyB, propertyB]) => {
                 const nameA = propertyA.name.toLowerCase()
                 const nameB = propertyB.name.toLowerCase()
 

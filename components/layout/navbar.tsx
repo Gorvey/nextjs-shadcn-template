@@ -1,15 +1,14 @@
 'use client'
 
 import { Menu, Search } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { SearchCommand } from '@/components/layout/search-command'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SearchCommand } from '@/components/layout/search-command'
 
 interface MenuItem {
   title: string
@@ -86,7 +85,7 @@ const Navbar = ({
           <div className="hidden lg:flex items-center justify-start overflow-hidden opacity-100">
             <Tabs value={getActiveTab()} className="w-auto">
               <TabsList className="border-none p-1 h-auto gap-6">
-                {menu.map((item, index) => (
+                {menu.map((item, _index) => (
                   <TabsTrigger key={item.title} value={item.title} asChild>
                     <Link href={item.url}>{item.title}</Link>
                   </TabsTrigger>

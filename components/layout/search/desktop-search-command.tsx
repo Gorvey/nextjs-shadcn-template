@@ -1,15 +1,14 @@
 'use client'
 
-import * as React from 'react'
-import { CommandDialog, CommandEmpty, CommandInput, CommandList } from '@/components/ui/command'
+import { CommandDialog, CommandInput, CommandList } from '@/components/ui/command'
 import { DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@/components/ui/visually-hidden'
-import { LoadingState } from './components/loading-state'
 import { EmptyState } from './components/empty-state'
+import { LoadingState } from './components/loading-state'
 import { SearchResultGroup } from './components/search-result-group'
 import { useSearch } from './states/use-search'
+import type { SearchCommandProps, SearchResult } from './types'
 import { getUrl } from './utils/utils'
-import type { SearchResult, SearchCommandProps } from './types'
 
 export function DesktopSearchCommand({ open, onOpenChange }: SearchCommandProps) {
   const { query, results, loading, setQuery, reset, handleCompositionStart, handleCompositionEnd } =

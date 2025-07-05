@@ -64,7 +64,7 @@ export class MetadataService {
           // 解析尺寸，如 "192x192" 或 "32x32 16x16"
           const sizeMatch = sizesAttr.match(/(\d+)x(\d+)/)
           if (sizeMatch) {
-            size = parseInt(sizeMatch[1]) * parseInt(sizeMatch[2])
+            size = Number.parseInt(sizeMatch[1]) * Number.parseInt(sizeMatch[2])
           }
         }
 

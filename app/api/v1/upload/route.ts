@@ -1,9 +1,9 @@
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 import {
-  withMiddleware,
-  createSuccessResponse,
   createErrorResponse,
+  createSuccessResponse,
   validateRequestBody,
+  withMiddleware,
 } from '@/lib/api-middleware'
 import { UploadService } from '@/lib/services/upload.service'
 
@@ -66,12 +66,12 @@ async function postHandler(request: NextRequest) {
   if (contentType?.includes('multipart/form-data')) {
     // 文件上传
     return await handleFileUpload(request)
-  } else if (contentType?.includes('application/json')) {
+  }
+  if (contentType?.includes('application/json')) {
     // 从 URL 上传
     return await handleUrlUpload(request)
-  } else {
-    return createErrorResponse('不支持的内容类型', 400, 'UNSUPPORTED_CONTENT_TYPE')
   }
+  return createErrorResponse('不支持的内容类型', 400, 'UNSUPPORTED_CONTENT_TYPE')
 }
 
 export const POST = withMiddleware(postHandler, {

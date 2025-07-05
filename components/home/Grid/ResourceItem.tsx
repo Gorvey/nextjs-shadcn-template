@@ -1,8 +1,8 @@
-import type { NotionPage } from '@/types/notion'
-import { ThumbHashImage } from '@/components/ui/thumbhash-image'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
-import { ResourceItem as CardResourceItem } from '../Card/ResourceItem'
 import { Card } from '@/components/ui/card'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { ThumbHashImage } from '@/components/ui/thumbhash-image'
+import type { NotionPage } from '@/types/notion'
+import { ResourceItem as CardResourceItem } from '../Card/ResourceItem'
 
 interface ResourceItemProps {
   item: NotionPage
@@ -21,7 +21,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
   }
 
   // 收集所有array属性的name值作为tags
-  const getTags = () => {
+  const _getTags = () => {
     const tags: string[] = []
     const arrayFields = ['页面类型', '标签', '付费情况', '服务模式', '访问限制', '运行环境', '分组']
 

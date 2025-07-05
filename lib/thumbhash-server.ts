@@ -1,5 +1,5 @@
-import { rgbaToThumbHash } from 'thumbhash'
 import sharp from 'sharp'
+import { rgbaToThumbHash } from 'thumbhash'
 
 /**
  * 服务端生成 thumbhash（使用 sharp）

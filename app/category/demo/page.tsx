@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { CategoryGrid, CategoryTags, ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
 import { CategoryNavigation } from '@/components/CategoryNavigation'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getMockCategoryData } from '@/lib/services/notion.service'
 import type { CategoryData } from '@/types/notion'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface CategoryItem {
   id: string
@@ -110,7 +110,7 @@ export default function CategoryDemoPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           <p className="mt-2 text-muted-foreground">加载演示数据中...</p>
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function CategoryDemoPage() {
                 AI一列，学习一列，生命周期一列 - 1:1:2宽度比例，直接展示二级分类
               </p>
             </div>
-            <div className="border-t border-border"></div>
+            <div className="border-t border-border" />
           </div>
 
           <ThreeColumnCategoryGrid
@@ -159,7 +159,7 @@ export default function CategoryDemoPage() {
                 按前端开发流程顺序展示，主流程右侧排列，AI和学习辅助能力左侧单独展示
               </p>
             </div>
-            <div className="border-t border-border"></div>
+            <div className="border-t border-border" />
           </div>
 
           <CategoryGrid
@@ -175,7 +175,7 @@ export default function CategoryDemoPage() {
               <h2 className="text-2xl font-semibold mb-2">标准布局</h2>
               <p className="text-muted-foreground">经典的卡片网格布局，展示完整的分类信息和描述</p>
             </div>
-            <div className="border-t border-border"></div>
+            <div className="border-t border-border" />
           </div>
 
           <CategoryGrid
@@ -193,7 +193,7 @@ export default function CategoryDemoPage() {
                 节省空间的简洁布局，适合在侧边栏或小屏幕设备上使用
               </p>
             </div>
-            <div className="border-t border-border"></div>
+            <div className="border-t border-border" />
           </div>
 
           <CategoryGrid
@@ -209,7 +209,7 @@ export default function CategoryDemoPage() {
               <h2 className="text-2xl font-semibold mb-2">标签云</h2>
               <p className="text-muted-foreground">标签形式的分类展示，适合作为筛选器或快速导航</p>
             </div>
-            <div className="border-t border-border"></div>
+            <div className="border-t border-border" />
           </div>
 
           <CategoryTags categories={categories} onCategoryClick={handleSimpleCategoryClick} />
@@ -221,7 +221,7 @@ export default function CategoryDemoPage() {
               <h2 className="text-2xl font-semibold mb-2">导航组件</h2>
               <p className="text-muted-foreground">可展开收起的树形导航，展示完整的分类层级结构</p>
             </div>
-            <div className="border-t border-border"></div>
+            <div className="border-t border-border" />
           </div>
 
           <CategoryNavigation

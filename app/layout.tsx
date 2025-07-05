@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Providers } from './providers'
 import { Analytics } from '@vercel/analytics/next'
+import { BackToTop } from '@/components/layout/back-to-top'
 import { Footer } from '@/components/layout/footer'
 import { Navbar } from '@/components/layout/navbar'
-import { BackToTop } from '@/components/layout/back-to-top'
+import { Providers } from './providers'
 
 export const metadata: Metadata = {
   title: 'cooool.fun - 发现最cooool的前端资源',
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`antialiased `}>
+      <body className={'antialiased '}>
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Navbar

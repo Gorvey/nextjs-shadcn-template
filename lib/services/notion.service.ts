@@ -1,7 +1,7 @@
 import { Client } from '@notionhq/client'
-import { getDatabase, getDatabaseDetails, getFormattedCategoryData } from '@/lib/notion'
 import { validateEnvVar } from '@/lib/api-middleware'
-import { CategoryData } from '@/types/notion'
+import { getDatabase, getDatabaseDetails, getFormattedCategoryData } from '@/lib/notion'
+import type { CategoryData } from '@/types/notion'
 
 export class NotionService {
   private client: Client

@@ -1,9 +1,8 @@
-import * as React from 'react'
 import { FileText, Link } from 'lucide-react'
-import { ThumbHashImage } from '@/components/ui/thumbhash-image'
 import { Badge } from '@/components/ui/badge'
+import { ThumbHashImage } from '@/components/ui/thumbhash-image'
 import type { SearchResult as SearchResultType } from '../types'
-import { getDisplayName, getDescription, getTags, getIconUrl, highlightText } from '../utils/utils'
+import { getDescription, getDisplayName, getIconUrl, getTags, highlightText } from '../utils/utils'
 
 interface SearchResultItemProps {
   item: SearchResultType

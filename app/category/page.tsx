@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
 // import { getMockCategoryData } from '@/lib/services/notion.service'
 import type { CategoryData } from '@/types/notion'
@@ -48,7 +48,7 @@ export default function CategoryPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           <p className="mt-2 text-muted-foreground">加载中...</p>
         </div>
       </div>

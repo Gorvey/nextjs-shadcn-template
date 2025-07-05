@@ -4,7 +4,6 @@ interface MenuItem {
   title: string
   url: string
 }
-
 interface FooterProps {
   logo?: {
     url: string

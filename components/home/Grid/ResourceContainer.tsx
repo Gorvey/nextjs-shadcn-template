@@ -15,21 +15,20 @@
  * - 间距优化：使用Tailwind的间距系统保持一致性
  */
 
-import { ResourceItem } from './ResourceItem'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import { Badge } from '@/components/ui/badge'
+// shadcn 组件导入
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useDataStore } from '@/stores/data.store'
 import { useViewStore } from '@/stores/view.store'
-import { useShallow } from 'zustand/react/shallow'
-import { NotionPage } from '@/types/notion'
-import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import type { NotionPage } from '@/types/notion'
 import getGridCategoryLayout, {
   type GridCategoryLayout,
   type SubcategoryDetails,
 } from './gridCategoryLayout'
-
-// shadcn 组件导入
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ResourceItem } from './ResourceItem'
 
 // 数据结构定义
 interface PrimaryGroup {

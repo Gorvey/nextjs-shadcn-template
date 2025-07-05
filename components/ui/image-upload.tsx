@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void
@@ -117,7 +117,7 @@ export function ImageUpload({
     if (!url) return
     e.preventDefault()
     const file = e.dataTransfer.files?.[0]
-    if (file && file.type.startsWith('image/')) {
+    if (file?.type.startsWith('image/')) {
       await handleFileUpload(file)
     }
   }
@@ -149,6 +149,8 @@ export function ImageUpload({
             <TabsContent value="upload" className="space-y-4">
               <div
                 ref={dropZoneRef}
+                role="button"
+                tabIndex={disabled ? -1 : 0}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 className={cn(
@@ -156,6 +158,12 @@ export function ImageUpload({
                   disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary'
                 )}
                 onClick={() => !disabled && fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    fileInputRef.current?.click()
+                  }
+                }}
               >
                 <Input
                   type="file"

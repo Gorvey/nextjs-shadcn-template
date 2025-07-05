@@ -1,9 +1,9 @@
+import type { DatabaseObjectResponse, PageObjectResponse } from '@notionhq/client'
 import { Client } from '@notionhq/client'
-import type { NotionPage, NotionDatabase } from '@/types/notion'
-import type { PageObjectResponse, DatabaseObjectResponse } from '@notionhq/client'
-import { transformNotionPage } from '@/utils/notion'
 import { NotionAPI } from 'notion-client'
-import { CategoryData } from '@/types/notion'
+import type { CategoryData, NotionDatabase, NotionPage } from '@/types/notion'
+import { transformNotionPage } from '@/utils/notion'
+
 const notionAPI = new NotionAPI()
 const notion = new Client({ auth: process.env.NOTION_TOKEN })
 
@@ -19,7 +19,7 @@ interface NotionCategoryPage {
 
 export async function getDatabase(databaseId: string): Promise<NotionPage[]> {
   const pages: NotionPage[] = []
-  let cursor: string | undefined = undefined
+  let cursor: string | undefined
 
   while (true) {
     const response = await notion.databases.query({
@@ -52,7 +52,7 @@ export async function getDatabase(databaseId: string): Promise<NotionPage[]> {
 }
 
 // 辅助函数：根据可能的属性名查找属性值
-function findPropertyValue(page: NotionPage, possibleNames: string[]): any {
+function _findPropertyValue(page: NotionPage, possibleNames: string[]): any {
   for (const name of possibleNames) {
     // 检查直接匹配
     if (page[name] !== undefined && page[name] !== null) {
@@ -96,10 +96,7 @@ export async function getFormattedCategoryData(databaseId: string): Promise<Cate
     .map((topCategory) => {
       // 查找子分类
       const subcategories = pages
-        .filter(
-          (page) =>
-            page['上级 项目'] && page['上级 项目'].some((parent) => parent.id === topCategory.id)
-        )
+        .filter((page) => page['上级 项目']?.some((parent) => parent.id === topCategory.id))
         .map((subPage) => ({
           id: subPage.id,
           name: subPage.name,
@@ -182,7 +179,7 @@ export async function getAllBlogPosts(): Promise<{ posts: NotionPage[]; total: n
   }
 
   const posts: NotionPage[] = []
-  let cursor: string | undefined = undefined
+  let cursor: string | undefined
 
   while (true) {
     const response = await notion.databases.query({
@@ -252,7 +249,7 @@ export async function getNotionPageContent(pageId: string) {
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000)) // 等待1秒
         const recordMap = await notionAPI.getPage(cleanPageId)
-        if (recordMap && recordMap.block) {
+        if (recordMap?.block) {
           console.log('Retry successful')
           return recordMap
         }

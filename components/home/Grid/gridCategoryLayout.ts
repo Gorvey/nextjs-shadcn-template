@@ -90,9 +90,9 @@ export default function getGridCategoryLayout(
     subcategories.map((s) => [s.name, s.normalizedItemsCount / totalItemsCount])
   )
   for (const row of rows) {
-    const rowWeights = row.reduce((t, c) => (t += weights.get(c.subcategoryName)!), 0)
+    const rowWeights = row.reduce((t, c) => (t += weights.get(c.subcategoryName) ?? 0), 0)
     for (const col of row) {
-      col.percentage = (weights.get(col.subcategoryName)! / rowWeights) * 100
+      col.percentage = ((weights.get(col.subcategoryName) ?? 0) / rowWeights) * 100
     }
   }
 

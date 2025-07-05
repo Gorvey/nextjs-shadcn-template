@@ -1,16 +1,15 @@
 'use client'
 
-import * as React from 'react'
-import { X, ArrowLeft, Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { ArrowLeft, Search, X } from 'lucide-react'
+import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { LoadingState } from './components/loading-state'
+import { Input } from '@/components/ui/input'
 import { EmptyState } from './components/empty-state'
+import { LoadingState } from './components/loading-state'
 import { SearchResultGroup } from './components/search-result-group'
 import { useSearch } from './states/use-search'
+import type { SearchCommandProps, SearchResult } from './types'
 import { getUrl } from './utils/utils'
-import type { SearchResult, SearchCommandProps } from './types'
-import { useEffect } from 'react'
 
 export function MobileSearchModal({ open, onOpenChange }: SearchCommandProps) {
   const { query, results, loading, setQuery, reset, handleCompositionStart, handleCompositionEnd } =
@@ -148,36 +147,5 @@ export function MobileSearchModal({ open, onOpenChange }: SearchCommandProps) {
         )}
       </div>
     </div>
-  )
-}
-
-// 移动端搜索结果项组件
-function MobileSearchResultItem({
-  item,
-  query,
-  onSelect,
-}: {
-  item: SearchResult
-  query: string
-  onSelect: (item: SearchResult) => void
-}) {
-  const displayName = item.name || item.Name || item.title || item.Title || '未命名'
-  const description = item.desc || item.Desc || item.description || item.Description || ''
-
-  return (
-    <button
-      onClick={() => onSelect(item)}
-      className="w-full p-3 text-left rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-    >
-      <div className="flex items-start gap-3">
-        <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium truncate text-sm">{displayName}</h4>
-          {description && (
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
-          )}
-        </div>
-      </div>
-    </button>
   )
 }

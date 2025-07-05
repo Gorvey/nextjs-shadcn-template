@@ -1,9 +1,9 @@
 'use client'
 
-import { signIn } from 'next-auth/react'
-import { Button } from '@/components/ui/button'
 import { Github } from 'lucide-react'
 import type { ClientSafeProvider } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
+import { Button } from '@/components/ui/button'
 
 interface SignInButtonProps {
   provider: ClientSafeProvider

@@ -1,8 +1,8 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { nanoid } from 'nanoid'
 import sharp from 'sharp'
-import { generateThumbHashServer, addThumbHashToUrl } from '@/lib/thumbhash-server'
 import { validateEnvVar } from '@/lib/api-middleware'
+import { addThumbHashToUrl, generateThumbHashServer } from '@/lib/thumbhash-server'
 
 export interface UploadResult {
   url: string
@@ -71,7 +71,7 @@ export class UploadService {
     try {
       const urlObj = new URL(sourceUrl)
       origin = urlObj.hostname
-    } catch (error) {
+    } catch (_error) {
       throw new Error('无效的URL格式')
     }
 
@@ -137,7 +137,7 @@ export class UploadService {
     try {
       const urlObj = new URL(sourceUrl)
       origin = urlObj.hostname
-    } catch (error) {
+    } catch (_error) {
       throw new Error('无效的URL格式')
     }
 

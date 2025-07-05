@@ -1,6 +1,6 @@
-import { ResourceItem } from './ResourceItem'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDataStore } from '@/stores/data.store'
+import { ResourceItem } from './ResourceItem'
 
 export function ResourceContainer() {
   const data = useDataStore((state) => state.data)

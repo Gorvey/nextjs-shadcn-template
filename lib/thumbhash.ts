@@ -93,7 +93,8 @@ export function thumbHashToDataURL(thumbHashBase64: string): string {
     const maxBlurSize = 40
     const aspectRatio = w / h
 
-    let canvasWidth, canvasHeight
+    let canvasWidth
+    let canvasHeight
     if (aspectRatio > 1) {
       canvasWidth = maxBlurSize
       canvasHeight = Math.round(maxBlurSize / aspectRatio)

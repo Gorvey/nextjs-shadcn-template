@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server'
-import { withMiddleware, createSuccessResponse, validateRequestBody } from '@/lib/api-middleware'
+import type { NextRequest } from 'next/server'
+import { createSuccessResponse, validateRequestBody, withMiddleware } from '@/lib/api-middleware'
 import { MetadataService } from '@/lib/services/metadata.service'
 
 interface GetMetadataRequest {

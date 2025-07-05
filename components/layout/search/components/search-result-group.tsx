@@ -1,10 +1,9 @@
-import * as React from 'react'
-import { CommandGroup } from '@/components/ui/command'
-import { SearchResult } from './search-result'
-import { MobileSearchResult } from './mobile-search-result'
 import { FileText, Link } from 'lucide-react'
+import { CommandGroup } from '@/components/ui/command'
 import type { SearchResult as SearchResultType } from '../types'
 import { isMobile } from '../utils/utils'
+import { MobileSearchResult } from './mobile-search-result'
+import { SearchResult } from './search-result'
 
 interface SearchResultGroupProps {
   title: string

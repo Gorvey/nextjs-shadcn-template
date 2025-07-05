@@ -1,13 +1,12 @@
+import type { Account, AuthOptions, Profile, Session, User } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
 import GithubProvider from 'next-auth/providers/github'
-import { JWT } from 'next-auth/jwt'
-import type { Account, Profile, Session, User } from 'next-auth'
-import type { AuthOptions } from 'next-auth'
 
 export const authOptions: AuthOptions = {
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: process.env.GITHUB_ID || '',
+      clientSecret: process.env.GITHUB_SECRET || '',
     }),
   ],
   callbacks: {

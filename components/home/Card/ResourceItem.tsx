@@ -1,18 +1,17 @@
-import { Button } from '@/components/ui/button'
-import { ExternalLinkIcon, CopyIcon, CheckIcon } from '@radix-ui/react-icons'
-import { FaNpm, FaGithub } from 'react-icons/fa'
-import { FaExpand } from 'react-icons/fa'
-import { SiNotion } from 'react-icons/si'
-import type { NotionPage } from '@/types/notion'
-import { ThumbHashImage } from '@/components/ui/thumbhash-image'
-import { useState } from 'react'
+import { CheckIcon, CopyIcon, ExternalLinkIcon } from '@radix-ui/react-icons'
 import { useSession } from 'next-auth/react'
+import { useState } from 'react'
+import { FaExpand, FaGithub, FaNpm } from 'react-icons/fa'
+import { SiNotion } from 'react-icons/si'
 import Lightbox from 'yet-another-react-lightbox'
+import { Button } from '@/components/ui/button'
+import { ThumbHashImage } from '@/components/ui/thumbhash-image'
+import type { NotionPage } from '@/types/notion'
 import 'yet-another-react-lightbox/styles.css'
-import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Download from 'yet-another-react-lightbox/plugins/download'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import { Badge } from '@/components/ui/badge'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 interface ResourceItemProps {
   item: NotionPage
@@ -44,7 +43,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
     return '/avatar-placeholder.jpg'
   }
 
-  const createdDate = new Date(item.created_time).toLocaleDateString('zh-CN', {
+  const _createdDate = new Date(item.created_time).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -173,7 +172,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
                   variant="ghost"
                   size="icon"
                   className="h-10 w-10 rounded-full bg-[#CB3837]/80 hover:bg-[#CB3837] dark:bg-[#CB3837]/80 dark:hover:bg-[#CB3837]"
-                  onClick={() => window.open(`npm}`, '_blank')}
+                  onClick={() => window.open('npm}', '_blank')}
                 >
                   <FaNpm className="h-5 w-5 text-white" />
                 </Button>

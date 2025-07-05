@@ -1,5 +1,5 @@
-import { NextRequest } from 'next/server'
-import { withMiddleware, createSuccessResponse, validateRequestBody } from '@/lib/api-middleware'
+import type { NextRequest } from 'next/server'
+import { createSuccessResponse, validateRequestBody, withMiddleware } from '@/lib/api-middleware'
 import { NotionService } from '@/lib/services/notion.service'
 
 // 获取所有数据
@@ -51,7 +51,6 @@ async function getHandler(request: NextRequest) {
   switch (action) {
     case 'details':
       return await handleGetDatabaseDetails()
-    case 'all':
     default:
       return await handleGetAllData()
   }

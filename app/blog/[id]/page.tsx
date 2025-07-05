@@ -1,7 +1,7 @@
-import { getNotionPageContent, getAllBlogPosts } from '@/lib/notion'
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import NotionPage from '@/components/NotionPage'
+import { getAllBlogPosts, getNotionPageContent } from '@/lib/notion'
 
 // 设置 ISR 缓存时间为 1 小时（3600 秒）
 export const revalidate = 3600
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
       title: `博客文章 - ${id}`,
       description: '博客文章详情',
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       title: '博客文章',
       description: '博客文章详情',

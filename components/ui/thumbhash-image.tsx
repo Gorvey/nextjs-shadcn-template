@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import Image, { ImageProps } from 'next/image'
+import Image, { type ImageProps } from 'next/image'
+import { useEffect, useMemo, useState } from 'react'
 import { extractThumbHashFromUrl, thumbHashToDataURL } from '@/lib/thumbhash'
 import { cn } from '@/lib/utils'
 

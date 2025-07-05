@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { NotionPage, NotionDatabase } from '@/types/notion'
 import { refreshHomeData } from '@/lib/actions'
+import type { NotionDatabase, NotionPage } from '@/types/notion'
 
 interface DataStore {
   data: NotionPage[]
@@ -12,7 +12,7 @@ interface DataStore {
   refreshData: () => Promise<void>
 }
 
-export const useDataStore = create<DataStore>((set, get) => ({
+export const useDataStore = create<DataStore>((set, _get) => ({
   data: [],
   loading: false,
   databaseDetails: null,

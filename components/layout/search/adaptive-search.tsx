@@ -1,11 +1,10 @@
 'use client'
 
-import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { DesktopSearchCommand } from './desktop-search-command'
 import { MobileSearchModal } from './mobile-search-modal'
-import { isMobile } from './utils/utils'
 import type { SearchCommandProps } from './types'
+import { isMobile } from './utils/utils'
 
 export function AdaptiveSearch({ open, onOpenChange }: SearchCommandProps) {
   const [isMobileDevice, setIsMobileDevice] = useState(false)
