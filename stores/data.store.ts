@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { refreshHomeData } from '@/lib/actions'
+import { refreshHomeData } from '@/actions'
 import type { NotionDatabase, NotionPage } from '@/types/notion'
 
 interface DataStore {

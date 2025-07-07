@@ -25,9 +25,9 @@ export interface NotionPage {
     | Select
     | { id: string }[]
     | FileInfo[]
-    | any[]
     | PageObjectResponse['icon']
     | PageObjectResponse['cover']
+    | any[]
     | null
     | undefined
 }

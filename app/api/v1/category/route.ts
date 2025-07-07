@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
-import { createSuccessResponse, withMiddleware } from '@/lib/api-middleware'
-import { NotionService } from '@/lib/services/notion.service'
+import { createSuccessResponse, withMiddleware } from '@/lib/server/api-middleware'
+import { NotionService } from '@/lib/server/services/notion.service'
 
 /**
  * @swagger

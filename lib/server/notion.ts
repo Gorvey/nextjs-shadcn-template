@@ -51,22 +51,6 @@ export async function getDatabase(databaseId: string): Promise<NotionPage[]> {
   return pages
 }
 
-// 辅助函数：根据可能的属性名查找属性值
-function _findPropertyValue(page: NotionPage, possibleNames: string[]): any {
-  for (const name of possibleNames) {
-    // 检查直接匹配
-    if (page[name] !== undefined && page[name] !== null) {
-      return page[name]
-    }
-    // 检查不区分大小写的匹配
-    const matchedKey = Object.keys(page).find((key) => key.toLowerCase() === name.toLowerCase())
-    if (matchedKey && page[matchedKey] !== undefined && page[matchedKey] !== null) {
-      return page[matchedKey]
-    }
-  }
-  return null
-}
-
 /**
  * @description 获取并格式化分类数据
  * @param databaseId
@@ -172,7 +156,10 @@ export async function getBlogPosts({
  * 获取所有博客文章
  * @returns 返回所有博客文章的列表和总数
  */
-export async function getAllBlogPosts(): Promise<{ posts: NotionPage[]; total: number }> {
+export async function getAllBlogPosts(): Promise<{
+  posts: NotionPage[]
+  total: number
+}> {
   const databaseId = process.env.NOTION_BLOG_DATABASE_ID
   if (!databaseId) {
     throw new Error('NOTION_BLOG_DATABASE_ID is not configured')

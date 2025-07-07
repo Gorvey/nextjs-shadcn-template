@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import NotionPage from '@/components/NotionPage'
-import { getAllBlogPosts, getNotionPageContent } from '@/lib/notion'
+import { getAllBlogPosts, getNotionPageContent } from '@/lib/server/notion'
 
 // 设置 ISR 缓存时间为 1 小时（3600 秒）
 export const revalidate = 3600

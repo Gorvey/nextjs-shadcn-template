@@ -1,6 +1,10 @@
 import type { NextRequest } from 'next/server'
-import { createSuccessResponse, validateRequestBody, withMiddleware } from '@/lib/api-middleware'
-import { NotionService } from '@/lib/services/notion.service'
+import {
+  createSuccessResponse,
+  validateRequestBody,
+  withMiddleware,
+} from '@/lib/server/api-middleware'
+import { NotionService } from '@/lib/server/services/notion.service'
 
 // 获取所有数据
 async function handleGetAllData() {

@@ -30,15 +30,15 @@ export async function generateThumbHashServer(buffer: Buffer): Promise<string> {
   }
 }
 
-/**
- * 向URL添加thumbhash参数
- */
-export function addThumbHashToUrl(url: string, thumbHash: string): string {
-  try {
-    const urlObj = new URL(url)
-    urlObj.searchParams.set('thumbhash', thumbHash)
-    return urlObj.toString()
-  } catch {
-    return url
-  }
-}
+// /**
+//  * 向URL添加thumbhash参数
+//  */
+// export function addThumbHashToUrl(url: string, thumbHash: string): string {
+//   try {
+//     const urlObj = new URL(url)
+//     urlObj.searchParams.set('thumbhash', thumbHash)
+//     return urlObj.toString()
+//   } catch {
+//     return url
+//   }
+// }

@@ -4,8 +4,8 @@ import {
   createSuccessResponse,
   validateRequestBody,
   withMiddleware,
-} from '@/lib/api-middleware'
-import { UploadService } from '@/lib/services/upload.service'
+} from '@/lib/server/api-middleware'
+import { UploadService } from '@/lib/server/services/upload.service'
 
 // 处理文件上传
 async function handleFileUpload(request: NextRequest) {

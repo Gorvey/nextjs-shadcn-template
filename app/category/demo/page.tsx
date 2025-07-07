@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { CategoryGrid, CategoryTags, ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
 import { CategoryNavigation } from '@/components/CategoryNavigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { getMockCategoryData } from '@/lib/services/notion.service'
+import { getMockCategoryData } from '@/lib/server/services/notion.service'
 import type { CategoryData } from '@/types/notion'
 
 interface CategoryItem {
@@ -236,10 +236,12 @@ export default function CategoryDemoPage() {
           <h2 className="text-lg font-semibold mb-4">布局选择建议</h2>
           <div className="text-sm text-muted-foreground space-y-2 text-left">
             <p>
-              <strong>三列布局</strong>：推荐用于主页面，能够清晰展示开发流程和直接访问具体工具
+              <strong>三列布局</strong>
+              ：推荐用于主页面，能够清晰展示开发流程和直接访问具体工具
             </p>
             <p>
-              <strong>生命周期布局</strong>：适合展示开发流程，突出时间顺序和阶段性
+              <strong>生命周期布局</strong>
+              ：适合展示开发流程，突出时间顺序和阶段性
             </p>
             <p>
               <strong>标准布局</strong>：通用的展示方式，适合大多数场景

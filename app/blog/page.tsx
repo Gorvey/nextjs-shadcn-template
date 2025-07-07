@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { PaginationWithLinks } from '@/components/ui/pagination-with-links'
-import { getAllBlogPosts } from '@/lib/notion'
+import { getAllBlogPosts } from '@/lib/server/notion'
 import type { NotionPage } from '@/types/notion'
 
 // 设置 ISR 缓存时间为 1 小时（3600 秒）

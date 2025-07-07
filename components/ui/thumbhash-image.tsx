@@ -2,8 +2,8 @@
 
 import Image, { type ImageProps } from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
-import { extractThumbHashFromUrl, thumbHashToDataURL } from '@/lib/thumbhash'
 import { cn } from '@/lib/utils'
+import { extractThumbHashFromUrl, thumbHashToDataURL } from '@/utils/thumbhash'
 
 interface ThumbHashImageProps extends Omit<ImageProps, 'placeholder' | 'blurDataURL'> {
   src: string

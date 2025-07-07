@@ -1,8 +1,8 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { nanoid } from 'nanoid'
 import sharp from 'sharp'
-import { validateEnvVar } from '@/lib/api-middleware'
-import { addThumbHashToUrl, generateThumbHashServer } from '@/lib/thumbhash-server'
+import { validateEnvVar } from '@/lib/server/api-middleware'
+import { addThumbHashToUrl, generateThumbHashServer } from '@/utils/thumbhash-server'
 
 export interface UploadResult {
   url: string
