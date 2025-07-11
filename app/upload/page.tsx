@@ -1,5 +1,6 @@
 'use client'
 
+import type { DatabaseObjectResponse } from '@notionhq/client'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
@@ -10,12 +11,11 @@ import { ImageUpload } from '@/components/ui/image-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import type { NotionDatabase, NotionPage } from '@/types/notion'
-
+import type { NotionPage } from '@/types/notion'
 export default function UploadPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [databaseDetails, setDatabaseDetails] = useState<NotionDatabase | null>(null)
+  const [databaseDetails, setDatabaseDetails] = useState<DatabaseObjectResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -686,7 +686,12 @@ export default function UploadPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setShowCustomInput((prev) => ({ ...prev, [key]: true }))}
+                        onClick={() =>
+                          setShowCustomInput((prev) => ({
+                            ...prev,
+                            [key]: true,
+                          }))
+                        }
                         className="h-8 px-3 text-sm border-dashed"
                       >
                         + 自定义
@@ -699,7 +704,10 @@ export default function UploadPage() {
                           placeholder="输入自定义选项..."
                           value={customInputs[key] || ''}
                           onChange={(e) =>
-                            setCustomInputs((prev) => ({ ...prev, [key]: e.target.value }))
+                            setCustomInputs((prev) => ({
+                              ...prev,
+                              [key]: e.target.value,
+                            }))
                           }
                           onKeyDown={(e) => handleCustomInputKeyDown(key, e)}
                           className="h-7 text-sm"
@@ -718,8 +726,14 @@ export default function UploadPage() {
                           type="button"
                           variant="outline"
                           onClick={() => {
-                            setShowCustomInput((prev) => ({ ...prev, [key]: false }))
-                            setCustomInputs((prev) => ({ ...prev, [key]: '' }))
+                            setShowCustomInput((prev) => ({
+                              ...prev,
+                              [key]: false,
+                            }))
+                            setCustomInputs((prev) => ({
+                              ...prev,
+                              [key]: '',
+                            }))
                           }}
                           className="h-7 px-2 text-sm"
                           size="sm"

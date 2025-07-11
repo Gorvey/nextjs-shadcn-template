@@ -136,9 +136,9 @@ export function CategoryNavigation({
                             <div className="flex items-center justify-between">
                               <span className="font-medium">{subcategory.name}</span>
                               {subcategory.count && (
-                                <Badge variant="outline" className="text-xs">
+                                <span className="text-xs font-semibold bg-slate-700 text-white dark:bg-slate-200 dark:text-slate-900 rounded-full px-2 py-1 min-w-[1.25rem] text-center">
                                   {subcategory.count}
-                                </Badge>
+                                </span>
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1 text-left">

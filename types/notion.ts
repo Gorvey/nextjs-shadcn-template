@@ -38,9 +38,20 @@ export interface NotionCategoryPage {
   desc: string
   sort: number
   icon?: NotionPage['icon']
-  parent: NotionCategoryPage[]
-  children: NotionCategoryPage[]
-  links: NotionPage[]
+  parent: { id: string }[]
+  children: { id: string }[]
+  links: { id: string }[]
+}
+
+export interface NotionCategoryViewPage {
+  id: string
+  name: string
+  desc: string
+  sort: number
+  icon?: NotionPage['icon']
+  parent: { id: string }[] // 保持不变
+  children: NotionCategoryViewPage[] // id替换为完整item
+  links: NotionPage[] // 只存在第二级，id替换为完整item
 }
 
 export interface NotionFilter {

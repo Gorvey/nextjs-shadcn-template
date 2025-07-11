@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import NotionPage from '@/components/NotionPage'
-import { getAllBlogPosts, getNotionPageContent } from '@/lib/server/notion'
+import { getAllBlogPosts } from '@/lib/server/notion'
+import { NotionService } from '@/lib/server/services/notion.service'
 
 // 设置 ISR 缓存时间为 1 小时（3600 秒）
 export const revalidate = 3600
@@ -9,7 +10,7 @@ export const revalidate = 3600
 interface BlogPostPageProps {
   params: Promise<{ id: string }>
 }
-
+const notionService = new NotionService()
 // 重新启用静态路径生成，结合 ISR 使用
 export async function generateStaticParams() {
   try {
@@ -56,7 +57,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   try {
     // 直接根据 id 获取页面完整内容
-    recordMap = await getNotionPageContent(id)
+    recordMap = await notionService.getNotionPageContent(id)
 
     if (!recordMap) {
       console.error('No record map returned for ID:', id)

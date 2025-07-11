@@ -1,14 +1,15 @@
+import type { DatabaseObjectResponse } from '@notionhq/client'
 import { create } from 'zustand'
 import { refreshHomeData } from '@/actions'
-import type { NotionDatabase, NotionPage } from '@/types/notion'
+import type { NotionPage } from '@/types/notion'
 
 interface DataStore {
   data: NotionPage[]
   loading: boolean
-  databaseDetails: NotionDatabase | null
+  databaseDetails: DatabaseObjectResponse | null
   setData: (data: NotionPage[]) => void
   setLoading: (loading: boolean) => void
-  setDatabaseDetails: (databaseDetails: NotionDatabase | null) => void
+  setDatabaseDetails: (databaseDetails: DatabaseObjectResponse | null) => void
   refreshData: () => Promise<void>
 }
 
@@ -18,7 +19,7 @@ export const useDataStore = create<DataStore>((set, _get) => ({
   databaseDetails: null,
   setData: (data: NotionPage[]) => set({ data }),
   setLoading: (loading: boolean) => set({ loading }),
-  setDatabaseDetails: (databaseDetails: NotionDatabase | null) => set({ databaseDetails }),
+  setDatabaseDetails: (databaseDetails: DatabaseObjectResponse | null) => set({ databaseDetails }),
   refreshData: async () => {
     set({ loading: true })
     try {
@@ -39,12 +40,12 @@ export const useDataStore = create<DataStore>((set, _get) => ({
 
         if (detailsResult.success) {
           set({ databaseDetails: detailsResult.data })
-        }
 
-        set({ loading: false })
-      } else {
-        console.error('刷新失败:', result.error)
-        set({ loading: false })
+          set({ loading: false })
+        } else {
+          console.error('刷新失败:', result.error)
+          set({ loading: false })
+        }
       }
     } catch (error) {
       console.error('刷新数据失败:', error)

@@ -9,16 +9,16 @@ import { NotionService } from '@/lib/server/services/notion.service'
 // 获取所有数据
 async function handleGetAllData() {
   const notionService = new NotionService()
-  const data = await notionService.getAllData()
+  const data = await notionService.getAllResources()
   return createSuccessResponse(data)
 }
 
-// 获取数据库详情
-async function handleGetDatabaseDetails() {
-  const notionService = new NotionService()
-  const details = await notionService.getDatabaseDetails()
-  return createSuccessResponse(details)
-}
+// // 获取数据库详情
+// async function handleGetDatabaseDetails() {
+//   const notionService = new NotionService()
+//   const details = await notionService.getDatabaseDetails()
+//   return createSuccessResponse(details)
+// }
 
 // 创建新页面
 interface CreatePageRequest {
@@ -43,7 +43,7 @@ async function handleCreatePage(request: NextRequest) {
   )
 
   const notionService = new NotionService()
-  const response = await notionService.createPage(properties, icon, cover)
+  const response = await notionService.createResourcePage(properties, icon, cover)
   return createSuccessResponse(response)
 }
 
@@ -53,8 +53,8 @@ async function getHandler(request: NextRequest) {
   const action = url.searchParams.get('action')
 
   switch (action) {
-    case 'details':
-      return await handleGetDatabaseDetails()
+    // case 'details':
+    //   return await handleGetDatabaseDetails()
     default:
       return await handleGetAllData()
   }

@@ -2,13 +2,17 @@ import type { NextRequest } from 'next/server'
 import { createSuccessResponse, withMiddleware } from '@/lib/server/api-middleware'
 import { NotionService } from '@/lib/server/services/notion.service'
 
-async function handler(_req: NextRequest) {
+async function handleGetCategories() {
   const notionService = new NotionService()
-  const data = await notionService.getCategoryData()
-  return createSuccessResponse(data)
+  const categories = await notionService.getCategoryData()
+  return createSuccessResponse(categories)
 }
 
-export const GET = withMiddleware(handler, {
+async function getHandler(_request: NextRequest) {
+  return await handleGetCategories()
+}
+
+export const GET = withMiddleware(getHandler, {
   requireAuth: false,
   errorHandling: true,
 })
