@@ -1,9 +1,8 @@
 import { ClientWrapper } from '@/components/home/ClientWrapper'
 import { FilterSection } from '@/components/home/FilterSection'
-import { getDatabase, getDatabaseDetails } from '@/lib/server/notion'
+import { queryDatabase, queryDatabaseDetail } from '@/lib/server/notion'
 
-// 启用ISR：每60秒重新生成页面
-export const revalidate = 60
+export const revalidate = 3600
 
 export default async function Home() {
   let initialData = null
@@ -18,11 +17,8 @@ export default async function Home() {
 
     // 在服务端并行获取数据
     const [pagesData, dbDetails] = await Promise.all([
-      getDatabase(databaseId),
-      getDatabaseDetails(databaseId).catch((err) => {
-        console.warn('获取数据库详情失败:', err)
-        return null
-      }),
+      queryDatabase(databaseId),
+      queryDatabaseDetail(databaseId),
     ])
 
     initialData = pagesData

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { CategoryGrid, CategoryTags, ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
 import { CategoryNavigation } from '@/components/CategoryNavigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { getMockCategoryData } from '@/lib/server/services/notion.service'
 import type { CategoryData } from '@/types/notion'
 
 interface CategoryItem {
@@ -80,16 +79,7 @@ export default function CategoryDemoPage() {
         setCategories(simplifiedData)
       } catch (error) {
         console.error('Failed to load categories:', error)
-        const mockData = getMockCategoryData()
-        setFullCategories(mockData)
-
-        const simplifiedMockData: CategoryItem[] = mockData.map((category) => ({
-          id: category.id,
-          name: category.name,
-          desc: category.desc,
-          subcategoryCount: category.subcategories.length,
-        }))
-        setCategories(simplifiedMockData)
+        setCategories([])
       } finally {
         setLoading(false)
       }

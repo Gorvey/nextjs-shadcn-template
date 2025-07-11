@@ -8,5 +8,8 @@
   "eslint.useFlatConfig": true,
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
   }
 }

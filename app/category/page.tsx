@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { ThreeColumnCategoryGrid } from '@/components/CategoryGrid'
-// import { getMockCategoryData } from '@/lib/services/notion.service'
-import type { CategoryData } from '@/types/notion'
+import type { NotionCategoryPage } from '@/types/notion'
 
 /**
  * 前端开发分类页面
  * 使用三列布局展示分类：AI一列，学习一列，生命周期一列
  */
 export default function CategoryPage() {
-  const [categories, setCategories] = useState<CategoryData[]>([])
+  const [categories, setCategories] = useState<NotionCategoryPage[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -25,9 +24,6 @@ export default function CategoryPage() {
         }
       } catch (error) {
         console.error('Failed to load categories:', error)
-        // 使用模拟数据作为后备
-        // const mockData = getMockCategoryData()
-        // setCategories(mockData)
       } finally {
         setLoading(false)
       }

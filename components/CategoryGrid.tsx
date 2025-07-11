@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import type { NotionCategoryPage } from '@/types/notion'
 
 type NotionIcon = DatabaseObjectResponse['icon']
 
@@ -30,23 +31,6 @@ interface CategoryItem {
   subcategoryCount?: number
 }
 
-interface SubCategoryData {
-  id: string
-  name: string
-  desc: string
-  icon?: NotionIcon
-  count?: number
-}
-
-interface FullCategoryData {
-  id: string
-  name: string
-  desc: string
-  sort: number
-  icon?: NotionIcon
-  subcategories: SubCategoryData[]
-}
-
 interface CategoryGridProps {
   categories: CategoryItem[]
   onCategoryClick?: (categoryId: string) => void
@@ -55,7 +39,7 @@ interface CategoryGridProps {
 }
 
 interface LifecycleCategoryGridProps {
-  categories: FullCategoryData[]
+  categories: NotionCategoryPage[]
   onCategoryClick?: (categoryId: string, subcategoryId?: string) => void
   className?: string
 }
@@ -166,23 +150,12 @@ function ThreeColumnLifecycleLayout({
   onCategoryClick,
   className,
 }: LifecycleCategoryGridProps) {
-  // 定义生命周期顺序
-  const lifecycleOrder = [
-    '项目启动',
-    '设计阶段',
-    '编码开发',
-    '功能实现',
-    '调试测试',
-    '构建部署',
-    '运维监控',
-  ]
-
   // 分离不同类型的分类
   const aiCategory = categories.find((cat) => cat.name === 'AI集成')
   const learningCategory = categories.find((cat) => cat.name === '学习成长')
-  const lifecycleCategories = lifecycleOrder
-    .map((name) => categories.find((cat) => cat.name === name))
-    .filter(Boolean) as FullCategoryData[]
+  const lifecycleCategories = categories.filter(
+    (cat) => cat.name !== 'AI集成' && cat.name !== '学习成长'
+  )
 
   // 默认选择"项目启动"或第一个生命周期阶段
   const defaultLifecycleCategory =
@@ -194,45 +167,48 @@ function ThreeColumnLifecycleLayout({
   const selectedCategory = lifecycleCategories.find((cat) => cat.id === selectedLifecycleId)
 
   // 渲染学习成长和 AI 集成模块
-  const renderHorizontalCategorySection = (category: FullCategoryData) => (
+  const renderHorizontalCategorySection = (category: NotionCategoryPage) => (
     <div key={category.id} className="w-full">
       <div className="text-center mb-6">
         <div
           className={cn(
-            'inline-flex items-center gap-3 px-4 py-2 rounded-lg',
-            getCategoryColor(category.sort),
-            'border-2'
+            'inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-colors',
+            getCategoryColor(category.sort)
           )}
         >
-          {getCategoryIcon(category.name, 'large', category.icon)}
-          <h2 className="text-lg font-semibold">{category.name}</h2>
+          {getCategoryIcon(category.name, 'medium', category.icon)}
+          <h3 className="text-lg font-semibold">{category.name}</h3>
         </div>
-        <p className="text-sm text-muted-foreground mt-2">{category.desc}</p>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {category.subcategories.map((subcategory) => (
-          <Card
-            key={subcategory.id}
-            className={cn(
-              'cursor-pointer transition-all duration-200',
-              getCategoryColor(category.sort)
-            )}
-            onClick={() => onCategoryClick?.(category.id, subcategory.id)}
-          >
-            <CardContent className="p-4 flex flex-col items-center text-center">
-              <div className="p-1.5 rounded-lg bg-background/80 shadow-sm mb-2">
-                {getCategoryIcon(subcategory.name, 'small', subcategory.icon, category.icon)}
-              </div>
-              <h4 className="text-sm font-medium truncate w-full">{subcategory.name}</h4>
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1">
-                {subcategory.desc}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-3">
+        {renderSubcategories(category.children, category.id, category.icon)}
       </div>
     </div>
   )
+
+  // 渲染子分类列表
+  const renderSubcategories = (
+    children: NotionCategoryPage[],
+    parentId: string,
+    parentIcon?: NotionIcon
+  ) =>
+    children.map((subcategory) => (
+      <Card
+        key={subcategory.id}
+        className="cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-primary/50"
+        onClick={() => onCategoryClick?.(parentId, subcategory.id)}
+      >
+        <CardContent className="p-4 flex flex-col items-center text-center">
+          <div className="p-1.5 rounded-lg bg-background/80 shadow-sm mb-2">
+            {getCategoryIcon(subcategory.name, 'small', subcategory.icon, parentIcon)}
+          </div>
+          <h4 className="text-sm font-medium truncate w-full">{subcategory.name}</h4>
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1">
+            {subcategory.desc}
+          </p>
+        </CardContent>
+      </Card>
+    ))
 
   return (
     <div className={cn('w-full space-y-12', className)}>
@@ -296,7 +272,7 @@ function ThreeColumnLifecycleLayout({
             <div className="flex-1">
               {selectedCategory ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {selectedCategory.subcategories.map((subcategory) => (
+                  {selectedCategory.children.map((subcategory) => (
                     <Card
                       key={subcategory.id}
                       className={cn(

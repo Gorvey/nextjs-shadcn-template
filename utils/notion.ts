@@ -1,5 +1,5 @@
 import type { PageObjectResponse } from '@notionhq/client'
-import type { NotionPage } from '@/types/notion'
+import type { NotionCategoryPage, NotionPage } from '@/types/notion'
 
 /**
  * 将 Notion 页面数据转换为简化的格式
@@ -230,4 +230,55 @@ export function getBooleanValue(page: NotionPage, fieldName: string): boolean {
 export function getRelationValue(page: NotionPage, fieldName: string): Array<{ id: string }> {
   const value = page[fieldName]
   return isRelationField(value) ? value : []
+}
+
+/**
+ * 将扁平的 Notion 页面列表转换为二级树状结构
+ * @param pages - 扁平的 NotionPage 对象数组
+ * @param parentRelationKey - NotionPage 对象中表示父级关系的属性名 (通常是一个 relation 字段)
+ * @returns NotionCategoryPage 对象的树状数组
+ */
+export function transformToTree(
+  pages: NotionPage[],
+  parentRelationKey: string
+): NotionCategoryPage[] {
+  const pageMap = new Map<string, NotionCategoryPage>()
+  const rootPages: NotionCategoryPage[] = []
+
+  // 第一次遍历：将所有页面转换为 NotionCategoryPage 并存入 map
+  for (const page of pages) {
+    const categoryPage: NotionCategoryPage = {
+      id: page.id,
+      name: getStringValue(page, 'name'), // 假设 name 字段存储了名称
+      desc: getStringValue(page, 'desc'), // 假设 desc 字段存储了描述
+      sort: getNumberValue(page, 'sort'), // 假设 sort 字段存储了排序
+      icon: page.icon,
+      parent: [],
+      children: [],
+      links: [], // 根据需要可以填充
+    }
+    pageMap.set(page.id, categoryPage)
+  }
+
+  // 第二次遍历：建立父子关系
+  for (const page of pages) {
+    const categoryPage = pageMap.get(page.id)
+    if (!categoryPage) continue
+
+    const parentIds = getRelationValue(page, parentRelationKey).map((p) => p.id)
+    const parentId = parentIds[0] // 假设只有一个父级
+
+    if (parentId && pageMap.has(parentId)) {
+      const parentPage = pageMap.get(parentId)
+      if (parentPage) {
+        parentPage.children.push(categoryPage)
+        categoryPage.parent.push(parentPage)
+      }
+    } else {
+      // 如果没有父级，或者父级不在当前列表中，则视为根节点
+      rootPages.push(categoryPage)
+    }
+  }
+
+  return rootPages
 }

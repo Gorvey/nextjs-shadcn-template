@@ -32,31 +32,19 @@ export interface NotionPage {
     | undefined
 }
 
-export interface NotionFilter {
-  id: string
-  name: string
-  options: Select[]
-}
-
-export interface NotionDatabase {
-  id: string
-  last_edited_time: string
-  properties: PageObjectResponse['properties']
-}
-
-export interface SubCategoryData {
-  id: string
-  name: string
-  desc: string
-  count?: number
-  icon?: PageObjectResponse['icon']
-}
-
-export interface CategoryData {
+export interface NotionCategoryPage {
   id: string
   name: string
   desc: string
   sort: number
-  icon?: PageObjectResponse['icon']
-  subcategories: SubCategoryData[]
+  icon?: NotionPage['icon']
+  parent: NotionCategoryPage[]
+  children: NotionCategoryPage[]
+  links: NotionPage[]
+}
+
+export interface NotionFilter {
+  id: string
+  name: string
+  options: Select[]
 }
