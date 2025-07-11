@@ -1,19 +1,14 @@
 'use client'
 
-import { useAppContext } from '@/components/providers/app-store-provider'
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useApp } from '@/lib/contexts/app-context'
 import { cn } from '@/lib/utils'
 
 export function FilterSection() {
-  // 使用AppContext
-  const viewType = useAppContext((state) => state.viewType)
-  const setViewType = useAppContext((state) => state.setViewType)
-  const currentCategorySlug = useAppContext((state) => state.currentCategorySlug)
-  const setCurrentCategorySlug = useAppContext((state) => state.setCurrentCategorySlug)
-  const categoryViewData = useAppContext((state) => state.categoryViewData)
-  const expandedPrimaryCategory = useAppContext((state) => state.expandedPrimaryCategory)
-  const setExpandedPrimaryCategory = useAppContext((state) => state.setExpandedPrimaryCategory)
+  // 使用新的Context系统
+  const { state, setViewType, setCurrentCategorySlug, setExpandedPrimaryCategory } = useApp()
+  const { viewType, currentCategorySlug, categoryViewData, expandedPrimaryCategory } = state
 
   // 获取显示名称
   const getDisplayName = (categoryId: string) => {

@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache'
 import type { NextRequest } from 'next/server'
 import {
   createSuccessResponse,
@@ -44,6 +45,8 @@ async function handleCreatePage(request: NextRequest) {
 
   const notionService = new NotionService()
   const response = await notionService.createResourcePage(properties, icon, cover)
+  revalidatePath('/')
+  revalidatePath('/category')
   return createSuccessResponse(response)
 }
 

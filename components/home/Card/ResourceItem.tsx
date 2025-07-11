@@ -1,3 +1,4 @@
+'use client'
 import { CheckIcon, CopyIcon, ExternalLinkIcon } from '@radix-ui/react-icons'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'

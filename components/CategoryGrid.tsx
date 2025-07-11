@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { useApp } from '@/lib/contexts/app-context'
 import { cn } from '@/lib/utils'
 import type { NotionCategoryViewPage } from '@/types/notion'
 
@@ -147,6 +148,7 @@ const getCategoryColor = (sort?: number) => {
  */
 function ThreeColumnLifecycleLayout({ categories, className }: LifecycleCategoryGridProps) {
   const router = useRouter()
+  const { setCurrentCategorySlug, setExpandedPrimaryCategory, setViewType } = useApp()
   // 分离不同类型的分类
   const aiCategory = categories.find((cat) => cat.name === 'AI集成')
   const learningCategory = categories.find((cat) => cat.name === '学习成长')
@@ -199,12 +201,11 @@ function ThreeColumnLifecycleLayout({ categories, className }: LifecycleCategory
           getCategoryColor(parentSort)
         )}
         onClick={() => {
-          // 跳转到导航页面并传递参数
-          const params = new URLSearchParams({
-            primary: parentId,
-            secondary: subcategory.id,
-          })
-          router.push(`/?${params.toString()}`)
+          // 设置 Context 状态并跳转到主页
+          setCurrentCategorySlug(subcategory.id)
+          setExpandedPrimaryCategory(parentId)
+          setViewType('card')
+          router.push('/')
         }}
       >
         <CardContent className="p-4">
@@ -320,12 +321,11 @@ function ThreeColumnLifecycleLayout({ categories, className }: LifecycleCategory
                         getCategoryColor(selectedCategory.sort)
                       )}
                       onClick={() => {
-                        // 跳转到导航页面并传递参数
-                        const params = new URLSearchParams({
-                          primary: selectedCategory.id,
-                          secondary: subcategory.id,
-                        })
-                        router.push(`/?${params.toString()}`)
+                        // 设置 Context 状态并跳转到主页
+                        setCurrentCategorySlug(subcategory.id)
+                        setExpandedPrimaryCategory(selectedCategory.id)
+                        setViewType('card')
+                        router.push('/')
                       }}
                     >
                       <CardContent className="p-4">
