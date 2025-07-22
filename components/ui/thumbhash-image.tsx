@@ -48,7 +48,7 @@ export function ThumbHashImage({ src, alt, className, fill, ...props }: ThumbHas
       {...props}
       fill={fill}
       src={actualImageSrc}
-      alt={alt}
+      alt=""
       placeholder={blurDataURL ? 'blur' : 'empty'}
       blurDataURL={blurDataURL}
       className={cn(className)}

@@ -284,10 +284,10 @@ export function AppProvider({ children, initialData }: AppProviderProps) {
   useEffect(() => {
     const storedPreferences = getStoredPreferences()
 
-    // 应用保存的偏好设置
-    if (storedPreferences.viewType !== state.viewType) {
-      dispatch({ type: 'SET_VIEW_TYPE', payload: storedPreferences.viewType })
-    }
+    // // 应用保存的偏好设置
+    // if (storedPreferences.viewType !== state.viewType) {
+    //   dispatch({ type: 'SET_VIEW_TYPE', payload: storedPreferences.viewType })
+    // }
 
     if (storedPreferences.currentCategorySlug !== state.currentCategorySlug) {
       dispatch({

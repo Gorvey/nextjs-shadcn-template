@@ -17,10 +17,24 @@ export function ClientWrapper({ children }: ClientWrapperProps) {
   return (
     <>
       {children}
-      <div className={viewType === 'card' ? 'block' : 'hidden'}>
+      <div
+        className={
+          viewType === 'card'
+            ? 'block'
+            : 'absolute left-0 top-0 w-full pointer-events-none opacity-0 h-0'
+        }
+        style={{ zIndex: -1 }}
+      >
         <CardResourceContainer />
       </div>
-      <div className={viewType === 'grid' ? 'block' : 'hidden'}>
+      <div
+        className={
+          viewType === 'grid'
+            ? 'block'
+            : 'absolute left-0 top-0 w-full pointer-events-none opacity-0 h-0'
+        }
+        style={{ zIndex: -1 }}
+      >
         <GridResourceContainer />
       </div>
     </>

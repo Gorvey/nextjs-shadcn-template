@@ -567,15 +567,12 @@ export default function UploadPage() {
               .sort(([_keyA, propertyA], [_keyB, propertyB]) => {
                 const nameA = propertyA.name.toLowerCase()
                 const nameB = propertyB.name.toLowerCase()
-
-                // 定义排序优先级
                 const getPriority = (name: string) => {
                   if (name.includes('url')) return 1
                   if (name.includes('name')) return 2
                   if (name.includes('desc')) return 3
                   return 999
                 }
-
                 return getPriority(nameA) - getPriority(nameB)
               })
               .map(([key, property]) => (
@@ -636,7 +633,6 @@ export default function UploadPage() {
           <div className="space-y-3">
             {Object.entries(databaseDetails.properties).map(([key, property]) => {
               const propertyType = property.type
-
               if (propertyType === 'multi_select') {
                 return (
                   <div key={key} className="space-y-1">
@@ -747,15 +743,16 @@ export default function UploadPage() {
               }
               return null
             })}
+            {/* 预览模块移动到标签下方 */}
+            <div className="mt-8">
+              <div className="text-lg font-medium mb-4">预览</div>
+              <div className="max-w-md mx-auto">
+                <ResourceItem item={previewData} />
+              </div>
+            </div>
           </div>
         </div>
       </form>
-      <div className="mt-8">
-        <div className="text-lg font-medium mb-4">预览</div>
-        <div className="max-w-md mx-auto">
-          <ResourceItem item={previewData} />
-        </div>
-      </div>
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-3">
         <div className="container mx-auto">
           <Button type="submit" className="w-full" disabled={submitting} onClick={handleSubmit}>

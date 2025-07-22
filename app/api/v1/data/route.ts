@@ -15,11 +15,11 @@ async function handleGetAllData() {
 }
 
 // // 获取数据库详情
-// async function handleGetDatabaseDetails() {
-//   const notionService = new NotionService()
-//   const details = await notionService.getDatabaseDetails()
-//   return createSuccessResponse(details)
-// }
+async function handleGetDatabaseDetails() {
+  const notionService = new NotionService()
+  const details = await notionService.getResourceDatabaseDetail()
+  return createSuccessResponse(details)
+}
 
 // 创建新页面
 interface CreatePageRequest {
@@ -56,8 +56,8 @@ async function getHandler(request: NextRequest) {
   const action = url.searchParams.get('action')
 
   switch (action) {
-    // case 'details':
-    //   return await handleGetDatabaseDetails()
+    case 'details':
+      return await handleGetDatabaseDetails()
     default:
       return await handleGetAllData()
   }

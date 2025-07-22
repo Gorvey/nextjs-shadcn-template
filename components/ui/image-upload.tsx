@@ -28,6 +28,7 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [imageUrl, setImageUrl] = useState('')
+  const [isPasting, setIsPasting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
 
@@ -67,10 +68,12 @@ export function ImageUpload({
   const handlePaste = async (e: React.ClipboardEvent) => {
     if (!url) return
     e.stopPropagation()
-
+    setIsPasting(true)
     const items = e.clipboardData?.items
-    if (!items) return
-
+    if (!items) {
+      setIsPasting(false)
+      return
+    }
     for (const item of items) {
       if (item.type.indexOf('image') !== -1) {
         const file = item.getAsFile()
@@ -79,6 +82,7 @@ export function ImageUpload({
         }
       }
     }
+    setIsPasting(false)
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,10 +132,7 @@ export function ImageUpload({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <Label className="text-sm">
-        {label}
-        {imageUrl}
-      </Label>
+      <Label className="text-sm">{label}</Label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-4">
           <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab}>
@@ -206,7 +207,7 @@ export function ImageUpload({
                 onPaste={handlePaste}
               >
                 <p className="text-sm text-muted-foreground">
-                  {disabled ? '请先输入URL' : '在此处粘贴图片（Ctrl+V）'}
+                  {disabled ? '请先输入URL' : isPasting ? '进行中...' : '在此处粘贴图片（Ctrl+V）'}
                 </p>
               </div>
             </TabsContent>

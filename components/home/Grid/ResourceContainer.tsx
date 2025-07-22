@@ -33,11 +33,33 @@ export function ResourceContainer() {
 
   // 从Context获取数据和状态
   const { state } = useApp()
-  const { categoryViewData, loading } = state
+  const { categoryViewData, loading, currentCategorySlug } = state
+
+  // 判断 currentCategorySlug 类型
+  const isAll = currentCategorySlug === 'all'
+  const primaryCategory = categoryViewData.find((cat) => cat.id === currentCategorySlug)
+  let secondaryCategory: any = null
+  let secondaryParent: any = null
+  if (!isAll && !primaryCategory) {
+    for (const cat of categoryViewData) {
+      const found = cat.children.find((child) => child.id === currentCategorySlug)
+      if (found) {
+        secondaryCategory = found
+        secondaryParent = cat
+        break
+      }
+    }
+  }
 
   // 优化的宽度更新函数
   const updateWidth = useCallback(() => {
     if (!containerRef.current) return
+
+    // 只在容器可见时更新宽度
+    const style = window.getComputedStyle(containerRef.current)
+    if (style.opacity === '0' || style.pointerEvents === 'none' || style.display === 'none') {
+      return
+    }
 
     const newWidth = containerRef.current.offsetWidth || DEFAULT_CONTAINER_WIDTH
 
@@ -145,7 +167,7 @@ export function ResourceContainer() {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="pt-5">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-3">
             {subcat.links.map((item) => (
               <ResourceItem key={item.id} item={item} />
@@ -200,7 +222,7 @@ export function ResourceContainer() {
     ({ primaryCategory, layout }: LayoutGroup) => (
       <div key={primaryCategory.id} className="mb-12">
         {/* 主分类标题 - 扁平现代风格 */}
-        <div className="mb-8 p-6 bg-background/90 rounded-2xl border border-border/60 shadow-sm">
+        <div className="mb-8 p-4 bg-background/90 rounded-2xl border border-border/60 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="h-2 w-12 bg-gradient-to-r from-primary to-primary/60 rounded-full" />
             <div className="flex items-center gap-3">
@@ -216,7 +238,7 @@ export function ResourceContainer() {
             <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
           </div>
           {primaryCategory.desc && (
-            <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
+            <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
               {primaryCategory.desc}
             </p>
           )}
@@ -287,25 +309,73 @@ export function ResourceContainer() {
     )
   }
 
-  // 无数据状态
-  if (layoutGroups.length === 0) {
+  // 子分类筛选：渲染主分类头部+该子分类内容
+  if (secondaryCategory && secondaryParent) {
     return (
-      <div className="flex items-center justify-center py-20 bg-background/50 min-h-screen">
-        <Card className="bg-card/90 border border-primary/30 shadow-lg max-w-md">
-          <CardContent className="p-10 text-center">
-            <div className="text-6xl mb-6 opacity-60">📋</div>
-            <h3 className="text-xl font-semibold mb-3 text-foreground">暂无分类数据</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              系统正在从Notion获取分类数据，请稍候...
+      <div className="min-h-screen">
+        {/* 主分类头部 */}
+        <div className="mb-8 p-4 bg-background/90 rounded-2xl border border-border/60 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="h-2 w-12 bg-gradient-to-r from-primary to-primary/60 rounded-full" />
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-foreground tracking-tight">
+                {secondaryParent.name}
+              </h2>
+              <Badge variant="outline" className="bg-muted/80 border-primary/30 text-foreground/80">
+                {secondaryParent.children.reduce(
+                  (acc: number, sub: { links: any[] }) => acc + sub.links.length,
+                  0
+                ) + secondaryParent.links.length}{' '}
+                项
+              </Badge>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
+          </div>
+          {secondaryParent.desc && (
+            <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+              {secondaryParent.desc}
             </p>
-          </CardContent>
-        </Card>
+          )}
+        </div>
+        {/* 子分类内容 */}
+        <div className="flex flex-wrap w-full gap-6">
+          <Card
+            key={secondaryCategory.id}
+            className="bg-card/80 border border-border/60"
+            style={{ minWidth: '280px', width: '100%' }}
+          >
+            <CardHeader className="pb-3 bg-muted/30 border-b border-border/60">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-foreground truncate">
+                  {secondaryCategory.name}
+                </CardTitle>
+                <Badge variant="secondary" className="shrink-0 bg-primary/10 text-primary">
+                  {secondaryCategory.links.length}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-5">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-3">
+                {secondaryCategory.links.map((item: any) => (
+                  <ResourceItem key={item.id} item={item} />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
 
+  // 主分类筛选：只渲染该主分类分组
+  if (primaryCategory) {
+    const layout = layoutGroups.find((g) => g.primaryCategory.id === primaryCategory.id)
+    return <div className="min-h-screen">{layout ? renderPrimaryGroup(layout) : null}</div>
+  }
+
+  // "all" 或无匹配，保持原有全部渲染
   return (
-    <div ref={containerRef} className="p-8 min-h-screen bg-background/50">
+    <div ref={containerRef} className=" min-h-screen ">
       {/* 主要分组 */}
       <div>{layoutGroups.map(renderPrimaryGroup)}</div>
     </div>

@@ -121,7 +121,7 @@ export function FilterSection() {
       </div>
       {/* 左侧：只在Card模式显示分类筛选器 */}
       <div className="flex items-center gap-4">
-        {viewType === 'card' && (
+        {
           <div className="flex items-center gap-4">
             <div className="text-foreground">分类筛选:</div>
 
@@ -253,7 +253,7 @@ export function FilterSection() {
               </SelectContent>
             </Select>
           </div>
-        )}
+        }
       </div>
     </div>
   )

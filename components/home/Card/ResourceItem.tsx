@@ -29,19 +29,19 @@ export function ResourceItem({ item }: ResourceItemProps) {
   const npm = typeof item.Github === 'string' ? item.npm : ''
   // 处理 cover
   const getCoverUrl = () => {
-    if (!item.cover) return '/placeholder.jpg'
+    if (!item.cover) return ''
     if (item.cover.type === 'external') return item.cover.external.url
     if (item.cover.type === 'file') return item.cover.file.url
-    return '/placeholder.jpg'
+    return ''
   }
 
   // 处理 icon
   const getIconUrl = () => {
-    if (!item.icon) return '/avatar-placeholder.jpg'
+    if (!item.icon) return ''
     if (item.icon.type === 'external') return item.icon.external.url
     if (item.icon.type === 'file') return item.icon.file.url
-    if (item.icon.type === 'emoji') return '/avatar-placeholder.jpg'
-    return '/avatar-placeholder.jpg'
+    if (item.icon.type === 'emoji') return ''
+    return ''
   }
 
   const _createdDate = new Date(item.created_time).toLocaleDateString('zh-CN', {
@@ -127,111 +127,121 @@ export function ResourceItem({ item }: ResourceItemProps) {
 
   return (
     <div className=" rounded-lg  has-[:focus-visible]:ring-offset-background relative flex w-full flex-col gap-2 text-sm sm:min-w-0">
-      <div className="dark:shadow-[0_0_2px_rgba(255,255,255,0.4)] shadow-[0_0_2px_rgba(0,0,0,0.1)] relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
-        <ThumbHashImage
-          fill
-          sizes="100vw"
-          alt={description}
-          src={getCoverUrl()}
-          className="object-cover object-top"
-        />
-        <div className=" absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[hsla(0,0%,100%,0.3)] to-[hsla(0,0%,40%,0.3)] opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100">
-          <div className="z-10 hidden w-32 flex-col items-center justify-center gap-2 sm:flex">
-            {/* <Button variant="default" className="w-full" onClick={() => window.open(url, '_blank')}>
-              查看详情
-            </Button> */}
-            <Button variant="outline" className="w-full" onClick={() => window.open(url, '_blank')}>
-              <ExternalLinkIcon className="mr-1 h-3 w-3" />
-              打开链接
-            </Button>
-          </div>
-          <div className="absolute bottom-2 px-2 flex w-full justify-between">
-            <div className="flex gap-2">
+      {/* 封面图片 */}
+      {
+        <div className="dark:shadow-[0_0_2px_rgba(255,255,255,0.4)] shadow-[0_0_2px_rgba(0,0,0,0.1)] relative aspect-video w-full overflow-hidden rounded-lg text-sm has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 has-[:focus-visible]:ring-offset-1">
+          <ThumbHashImage
+            fill
+            sizes="100vw"
+            alt={description}
+            src={getCoverUrl()}
+            className="object-cover object-top"
+          />
+          <div className=" absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[hsla(0,0%,100%,0.3)] to-[hsla(0,0%,40%,0.3)] opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100">
+            <div className="z-10 hidden w-32 flex-col items-center justify-center gap-2 sm:flex">
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full bg-black/80 hover:bg-black dark:bg-black/80 dark:hover:bg-black"
-                onClick={() => setIsPreviewOpen(true)}
+                variant="outline"
+                className="w-full"
+                onClick={() => window.open(url, '_blank')}
               >
-                <FaExpand className="h-5 w-5 text-white" />
+                <ExternalLinkIcon className="mr-1 h-3 w-3" />
+                打开链接
               </Button>
-              {session && (
+            </div>
+            <div className="absolute bottom-2 px-2 flex w-full justify-between">
+              <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-10 w-10 rounded-full bg-black/80 hover:bg-black dark:bg-black/80 dark:hover:bg-black"
-                  onClick={openNotionPage}
-                  title="在Notion中打开"
+                  onClick={() => setIsPreviewOpen(true)}
                 >
-                  <SiNotion className="h-5 w-5 text-white" />
+                  <FaExpand className="h-5 w-5 text-white" />
                 </Button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {npm && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 rounded-full bg-[#CB3837]/80 hover:bg-[#CB3837] dark:bg-[#CB3837]/80 dark:hover:bg-[#CB3837]"
-                  onClick={() => window.open('npm}', '_blank')}
-                >
-                  <FaNpm className="h-5 w-5 text-white" />
-                </Button>
-              )}
-              {Github && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 rounded-full bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
-                  onClick={() => window.open(`https://github.com/${title}`, '_blank')}
-                >
-                  <FaGithub className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                </Button>
-              )}
+                {session && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 rounded-full bg-black/80 hover:bg-black dark:bg-black/80 dark:hover:bg-black"
+                    onClick={openNotionPage}
+                    title="在Notion中打开"
+                  >
+                    <SiNotion className="h-5 w-5 text-white" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {npm && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 rounded-full bg-[#CB3837]/80 hover:bg-[#CB3837] dark:bg-[#CB3837]/80 dark:hover:bg-[#CB3837]"
+                    onClick={() => window.open('npm}', '_blank')}
+                  >
+                    <FaNpm className="h-5 w-5 text-white" />
+                  </Button>
+                )}
+                {Github && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 rounded-full bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800"
+                    onClick={() => window.open(`https://github.com/${title}`, '_blank')}
+                  >
+                    <FaGithub className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <Lightbox
-        open={isPreviewOpen}
-        close={() => setIsPreviewOpen(false)}
-        slides={[{ src: getCoverUrl() }]}
-        plugins={[Zoom, Download]}
-        carousel={{
-          finite: false,
-          preload: 1,
-          spacing: 0,
-          padding: 32,
-        }}
-        controller={{ closeOnBackdropClick: false }}
-        zoom={{
-          scrollToZoom: true,
-        }}
-        render={{
-          buttonPrev: () => null,
-          buttonNext: () => null,
-        }}
-      />
+      }
+      {
+        <Lightbox
+          open={isPreviewOpen}
+          close={() => setIsPreviewOpen(false)}
+          slides={[{ src: getCoverUrl() }]}
+          plugins={[Zoom, Download]}
+          carousel={{
+            finite: false,
+            preload: 1,
+            spacing: 0,
+            padding: 32,
+          }}
+          controller={{ closeOnBackdropClick: false }}
+          zoom={{
+            scrollToZoom: true,
+          }}
+          render={{
+            buttonPrev: () => null,
+            buttonNext: () => null,
+          }}
+        />
+      }
       <div className="flex items-center gap-3 py-1">
         <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-12">
-          <div className="absolute -z-1 opacity-50">
-            <ThumbHashImage
-              src={getIconUrl()}
-              alt="Avatar"
-              width={48}
-              height={48}
-              className="blur"
-            />
-          </div>
-          <div className="relative z-1 rounded-[12px] overflow-hidden size-12">
-            <ThumbHashImage
-              src={getIconUrl()}
-              alt="Avatar"
-              width={48}
-              height={48}
-              className="h-full w-full object-cover p-0.5 rounded-[12px]"
-            />
-          </div>
+          {
+            <>
+              <div className="absolute -z-1 opacity-50">
+                <ThumbHashImage
+                  src={getIconUrl()}
+                  alt="Avatar"
+                  width={48}
+                  height={48}
+                  className="blur"
+                />
+              </div>
+              <div className="relative z-1 rounded-[12px] overflow-hidden size-12">
+                <ThumbHashImage
+                  src={getIconUrl()}
+                  alt="Avatar"
+                  width={48}
+                  height={48}
+                  className="h-full w-full object-cover p-0.5 rounded-[12px]"
+                />
+              </div>
+            </>
+          }
         </div>
         <div className="flex flex-col gap-0.5 pt-[4px] min-w-0 flex-1">
           <div className="text-lg line-clamp-1 font-medium leading-none text-foreground">

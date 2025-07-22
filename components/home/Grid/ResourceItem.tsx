@@ -20,25 +20,6 @@ export function ResourceItem({ item }: ResourceItemProps) {
     return '/avatar-placeholder.jpg'
   }
 
-  // 收集所有array属性的name值作为tags
-  const _getTags = () => {
-    const tags: string[] = []
-    const arrayFields = ['页面类型', '标签', '付费情况', '服务模式', '访问限制', '运行环境', '分组']
-
-    arrayFields.forEach((field) => {
-      const fieldValue = (item as any)[field]
-      if (Array.isArray(fieldValue)) {
-        fieldValue.forEach((subItem) => {
-          if (subItem && typeof subItem === 'object' && subItem.name) {
-            tags.push(subItem.name)
-          }
-        })
-      }
-    })
-
-    return tags
-  }
-
   return (
     <HoverCard openDelay={300} closeDelay={200}>
       <HoverCardTrigger asChild>
@@ -49,8 +30,8 @@ export function ResourceItem({ item }: ResourceItemProps) {
           }}
         >
           <div className="relative flex items-center justify-center mb-3">
-            <div className="relative flex shrink-0 select-none items-center justify-center text-sm size-12">
-              <div className="absolute -z-1 opacity-50">
+            <div className="relative flex shrink-0 select-none items-center justify-center text-sm w-[48px] h-[48px]">
+              <div className="absolute -z-1 opacity-50 w-[48px] h-[48px]">
                 <ThumbHashImage
                   src={getIconUrl()}
                   alt="Avatar"
@@ -59,7 +40,7 @@ export function ResourceItem({ item }: ResourceItemProps) {
                   className="blur"
                 />
               </div>
-              <div className="relative z-1 rounded-[12px] overflow-hidden size-12">
+              <div className="relative z-1 rounded-[12px] overflow-hidden w-[48px] h-[48px]">
                 <ThumbHashImage
                   src={getIconUrl()}
                   alt="Avatar"
