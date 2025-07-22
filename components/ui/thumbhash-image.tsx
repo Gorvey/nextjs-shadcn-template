@@ -16,41 +16,47 @@ interface ThumbHashImageProps extends Omit<ImageProps, 'placeholder' | 'blurData
  * 支持 ThumbHash 模糊占位图的 Image 组件
  */
 export function ThumbHashImage({ src, alt, className, fill, ...props }: ThumbHashImageProps) {
-  const [actualImageSrc, setActualImageSrc] = useState<string>('')
-  const [blurDataURL, setBlurDataURL] = useState<string>('')
+  const [isCached, setIsCached] = useState(false)
 
-  const thumbHash = useMemo(() => extractThumbHashFromUrl(src), [src])
-
-  useEffect(() => {
+  const { actualImageSrc, blurDataURL } = useMemo(() => {
+    const thumbHash = extractThumbHashFromUrl(src)
+    let blurDataURL = ''
+    let actualImageSrc = src
     if (thumbHash) {
-      const dataUrl = thumbHashToDataURL(thumbHash)
-      setBlurDataURL(dataUrl)
-
+      blurDataURL = thumbHashToDataURL(thumbHash)
       try {
         const url = new URL(src)
         url.searchParams.delete('thumbhash')
-        setActualImageSrc(url.toString())
+        actualImageSrc = url.toString()
       } catch {
-        setActualImageSrc(src)
+        actualImageSrc = src
       }
-    } else {
-      setActualImageSrc(src)
-      setBlurDataURL('')
     }
-  }, [src, thumbHash])
+    return { actualImageSrc, blurDataURL }
+  }, [src])
 
-  if (!actualImageSrc) {
-    return null
-  }
+  useEffect(() => {
+    if (!actualImageSrc) return
+    const img = new window.Image()
+    img.src = actualImageSrc
+    if (img.complete) {
+      setIsCached(true)
+    } else {
+      img.onload = () => setIsCached(true)
+      img.onerror = () => setIsCached(false)
+    }
+  }, [actualImageSrc])
+
+  if (!actualImageSrc) return null
 
   return (
     <Image
       {...props}
       fill={fill}
       src={actualImageSrc}
-      alt=""
-      placeholder={blurDataURL ? 'blur' : 'empty'}
-      blurDataURL={blurDataURL}
+      alt={alt}
+      placeholder={!isCached && blurDataURL ? 'blur' : 'empty'}
+      blurDataURL={!isCached ? blurDataURL : undefined}
       className={cn(className)}
     />
   )
