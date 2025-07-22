@@ -24,6 +24,9 @@ const DEFAULT_ITEM_WIDTH = 120
 const DEBOUNCE_DELAY = 200
 const WIDTH_CHANGE_THRESHOLD = 10 // 宽度变化阈值，避免微小变化
 
+// 定义gap常量
+const ROW_GAP_PX = 24 // gap-6 = 1.5rem = 24px
+
 export function ResourceContainer() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(DEFAULT_CONTAINER_WIDTH)
@@ -110,72 +113,49 @@ export function ResourceContainer() {
     }
   }, []) // 空依赖数组，只在mount/unmount时执行
 
-  // 计算布局配置
-  const layoutGroups = useMemo(() => {
-    if (!categoryViewData.length) return []
-
-    return categoryViewData.map((primaryCategory) => {
-      // 只包含有links的子分类
-      const subcategoryDetails: SubcategoryDetails[] = primaryCategory.children
-        .filter((subcat) => subcat.links.length > 0) // 过滤掉没有links的子分类
-        .map((subcat) => ({
-          name: subcat.name,
-          itemsCount: subcat.links.length,
-          itemsFeaturedCount: 0,
-        }))
-
-      // 如果主分类本身有资源，也添加到布局中
-      if (primaryCategory.links.length > 0) {
-        subcategoryDetails.unshift({
-          name: `${primaryCategory.name} (直接资源)`,
-          itemsCount: primaryCategory.links.length,
-          itemsFeaturedCount: 0,
-        })
-      }
-
-      const layout = getGridCategoryLayout({
-        categoryName: primaryCategory.name,
-        subcategories: subcategoryDetails,
-        isOverriden: false,
-        containerWidth,
-        itemWidth: DEFAULT_ITEM_WIDTH,
-      })
-
-      return { primaryCategory, layout }
-    })
-  }, [categoryViewData, containerWidth])
-
-  // 渲染次要分组 - 使用 shadcn Card 组件
+  // 渲染次要分组，宽度动态联动gap
+  /**
+   * 渲染次要分组，宽度动态联动gap
+   * @param subcat 子分类对象
+   * @param percentage 当前分组的百分比宽度
+   * @param rowLength 当前行元素个数
+   * @param gapPx 当前行的gap（像素）
+   */
   const renderSecondaryGroup = useCallback(
-    (subcat: NotionCategoryViewPage, percentage: number) => (
-      <Card
-        key={subcat.id}
-        className="bg-card/80 border border-border/60"
-        style={{
-          width: `calc(${percentage}% - 12px)`,
-          minWidth: '280px',
-          maxWidth: `calc(${percentage}% - 12px)`,
-        }}
-      >
-        <CardHeader className="pb-3 bg-muted/30 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-sm font-medium text-foreground truncate">
-              {subcat.name}
-            </CardTitle>
-            <Badge variant="secondary" className="shrink-0 bg-primary/10 text-primary">
-              {subcat.links.length}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-5">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-3">
-            {subcat.links.map((item) => (
-              <ResourceItem key={item.id} item={item} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    ),
+    (subcat: NotionCategoryViewPage, percentage: number, rowLength: number, gapPx: number) => {
+      // 计算每个元素分摊的gap
+      const gapShare = rowLength > 1 ? (rowLength - 1) * gapPx * (percentage / 100) : 0
+      const width = `calc(${percentage}% - ${gapShare}px)`
+      return (
+        <Card
+          key={subcat.id}
+          className="bg-card/80 border border-border/60"
+          style={{
+            width,
+            minWidth: '180px',
+            maxWidth: width,
+          }}
+        >
+          <CardHeader className="pb-3 bg-muted/30 border-b border-border/60">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-foreground truncate">
+                {subcat.name}
+              </CardTitle>
+              <Badge variant="secondary" className="shrink-0 bg-primary/10 text-primary">
+                {subcat.links.length}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-5">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-3">
+              {subcat.links.map((item) => (
+                <ResourceItem key={item.id} item={item} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )
+    },
     []
   )
 
@@ -217,7 +197,7 @@ export function ResourceContainer() {
     []
   )
 
-  // 渲染主要分组 - 使用现代扁平设计
+  // 重写renderPrimaryGroup，传递gap和itemCount
   const renderPrimaryGroup = useCallback(
     ({ primaryCategory, layout }: LayoutGroup) => (
       <div key={primaryCategory.id} className="mb-12">
@@ -247,7 +227,11 @@ export function ResourceContainer() {
         {/* 按行渲染布局 */}
         <div className="space-y-6">
           {layout.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex flex-wrap w-full gap-6">
+            <div
+              key={rowIndex}
+              className="flex flex-wrap w-full"
+              style={{ gap: `${ROW_GAP_PX}px` }}
+            >
               {row.map((column) => {
                 // 查找对应的子分类
                 const subcat = primaryCategory.children.find(
@@ -256,10 +240,13 @@ export function ResourceContainer() {
 
                 // 处理主分类直接资源的情况
                 if (column.subcategoryName === `${primaryCategory.name} (直接资源)`) {
+                  // 保持原有主分类直接资源宽度逻辑
                   return renderPrimaryCategoryResources(primaryCategory, column.percentage)
                 }
 
-                return subcat ? renderSecondaryGroup(subcat, column.percentage) : null
+                return subcat
+                  ? renderSecondaryGroup(subcat, column.percentage, row.length, ROW_GAP_PX)
+                  : null
               })}
             </div>
           ))}
@@ -268,6 +255,41 @@ export function ResourceContainer() {
     ),
     [renderSecondaryGroup, renderPrimaryCategoryResources]
   )
+
+  // 计算布局配置
+  const layoutGroups = useMemo(() => {
+    if (!categoryViewData.length) return []
+
+    return categoryViewData.map((primaryCategory) => {
+      // 只包含有links的子分类
+      const subcategoryDetails: SubcategoryDetails[] = primaryCategory.children
+        .filter((subcat) => subcat.links.length > 0) // 过滤掉没有links的子分类
+        .map((subcat) => ({
+          name: subcat.name,
+          itemsCount: subcat.links.length,
+          itemsFeaturedCount: 0,
+        }))
+
+      // 如果主分类本身有资源，也添加到布局中
+      if (primaryCategory.links.length > 0) {
+        subcategoryDetails.unshift({
+          name: `${primaryCategory.name} (直接资源)`,
+          itemsCount: primaryCategory.links.length,
+          itemsFeaturedCount: 0,
+        })
+      }
+
+      const layout = getGridCategoryLayout({
+        categoryName: primaryCategory.name,
+        subcategories: subcategoryDetails,
+        isOverriden: false,
+        containerWidth,
+        itemWidth: DEFAULT_ITEM_WIDTH,
+      })
+
+      return { primaryCategory, layout }
+    })
+  }, [categoryViewData, containerWidth])
 
   // 加载状态 - 使用 Skeleton 组件
   if (loading && layoutGroups.length === 0) {
