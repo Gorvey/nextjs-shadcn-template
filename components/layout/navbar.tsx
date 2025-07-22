@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { SearchCommand } from '@/components/layout/search-command'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -70,7 +71,7 @@ const Navbar = ({
       >
         <div className="mx-auto px-4 h-full flex items-center justify-between">
           {/* 左侧 Logo */}
-          <div className="flex items-center opacity-100">
+          <div className="flex items-center opacity-100 flex-1 min-w-0">
             <Link className="inline-block" aria-label={`${logo.title} - 返回首页`} href={logo.url}>
               <div className="flex items-center gap-2">
                 <img src="/logo.png" alt="Next.js Logo" className="h-10 w-auto" />
@@ -82,7 +83,7 @@ const Navbar = ({
           </div>
 
           {/* 中间导航菜单 - 桌面端 */}
-          <div className="hidden lg:flex items-center justify-start overflow-hidden opacity-100">
+          <div className="hidden lg:flex items-center justify-center flex-1 min-w-0">
             <Tabs value={getActiveTab()} className="w-auto">
               <TabsList className="border-none p-1 h-auto gap-6">
                 {menu.map((item, _index) => (
@@ -95,10 +96,39 @@ const Navbar = ({
           </div>
 
           {/* 右侧按钮组 */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
             <div className="flex items-center gap-1 sm:gap-2">
-              {/* 搜索按钮 */}
-              <div>
+              {/* 搜索框（桌面端） */}
+              <div className="relative flex items-center hidden sm:flex">
+                <Search
+                  className="absolute left-3 h-[1.2rem] w-[1.2rem] text-muted-foreground pointer-events-none"
+                  aria-hidden="true"
+                />
+                <div
+                  onClick={() => setSearchOpen(true)}
+                  className="flex-1"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setSearchOpen(true)
+                    }
+                  }}
+                >
+                  <Input
+                    readOnly
+                    placeholder="搜索"
+                    className="pl-10 pr-16 py-2 w-36 md:w-48 cursor-pointer bg-background border-muted-foreground/20 hover:border-primary focus:border-primary transition-colors"
+                    onClick={() => setSearchOpen(true)}
+                    aria-label="搜索"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 border rounded bg-muted text-xs text-muted-foreground pointer-events-none select-none">
+                    Ctrl + P
+                  </span>
+                </div>
+              </div>
+              {/* 搜索按钮（移动端） */}
+              <div className="inline-flex sm:hidden">
                 <Button
                   variant="outline"
                   size="icon"
