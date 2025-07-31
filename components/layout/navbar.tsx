@@ -1,9 +1,11 @@
 'use client'
 
-import { Menu, Search } from 'lucide-react'
+import { Menu, RefreshCw, Search } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import { refreshHomeData } from '@/actions/refreshHomeData'
 import { SearchCommand } from '@/components/layout/search-command'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { Button } from '@/components/ui/button'
@@ -36,7 +38,9 @@ const Navbar = ({
 }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   // 键盘快捷键支持
   useEffect(() => {
@@ -61,6 +65,22 @@ const Navbar = ({
       return pathname.startsWith(item.url + '/') || pathname.startsWith(item.url)
     })
     return activeItem?.title || menu[0]?.title
+  }
+
+  /**
+   * 处理刷新数据
+   */
+  const handleRefresh = async () => {
+    if (!session) return
+
+    setIsRefreshing(true)
+    try {
+      await refreshHomeData()
+    } catch (error) {
+      console.error('刷新失败:', error)
+    } finally {
+      setIsRefreshing(false)
+    }
   }
 
   return (
@@ -139,6 +159,24 @@ const Navbar = ({
                   <Search className="h-[1.2rem] w-[1.2rem]" aria-hidden="true" />
                 </Button>
               </div>
+
+              {/* 刷新按钮 - 只有登录用户可见 */}
+              {session && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="刷新数据"
+                  title="刷新数据"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="text-red-500 hover:text-red-600 border-red-500 hover:border-red-600"
+                >
+                  <RefreshCw
+                    className={`h-[1.2rem] w-[1.2rem] ${isRefreshing ? 'animate-spin' : ''}`}
+                    aria-hidden="true"
+                  />
+                </Button>
+              )}
 
               {/* 主题切换按钮 */}
               <div>

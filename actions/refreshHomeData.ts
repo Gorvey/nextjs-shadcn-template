@@ -6,6 +6,7 @@ export async function refreshHomeData() {
   try {
     // 重新验证首页路径，强制重新获取数据
     revalidatePath('/')
+    revalidatePath('/category')
     return { success: true }
   } catch (error) {
     console.error('刷新数据失败:', error)

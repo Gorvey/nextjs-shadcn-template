@@ -34,8 +34,8 @@ export default function RootLayout({
               menu={[
                 { title: '导航', url: '/' },
                 { title: '分类', url: '/category' },
-                { title: '博客', url: '/blog' },
-                { title: '关于本站', url: '/about' },
+                // { title: '博客', url: '/blog' },
+                // { title: '关于本站', url: '/about' },
               ]}
             />
             <main className="flex-grow">{children}</main>
@@ -47,10 +47,10 @@ export default function RootLayout({
               menu={[
                 { title: '导航', url: '/' },
                 { title: '分类', url: '/category' },
-                { title: '博客', url: '/blog' },
-                { title: '关于本站', url: '/about' },
+                // { title: "博客", url: "/blog" },
+                // { title: "关于本站", url: "/about" },
               ]}
-              tagline="Gorvey的博客,资源集合"
+              tagline="Gorvey的资源集合"
               creator="Gorvey"
               copyright="© 2025 cooool.fun. All rights reserved."
             />

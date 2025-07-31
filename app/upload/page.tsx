@@ -4,14 +4,16 @@ import type { DatabaseObjectResponse } from '@notionhq/client'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import { refreshHomeData } from '@/actions/refreshHomeData'
 import { ResourceItem } from '@/components/home/Card/ResourceItem'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { CategorySelector } from '@/components/ui/category-selector'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import type { NotionPage } from '@/types/notion'
+import type { NotionCategoryViewPage, NotionPage } from '@/types/notion'
 export default function UploadPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -30,6 +32,8 @@ export default function UploadPage() {
   const [coverUrl, setCoverUrl] = useState<string>('')
   const [iconActiveTab, setIconActiveTab] = useState('upload')
   const [coverActiveTab, setCoverActiveTab] = useState('upload')
+  const [categoryViewData, setCategoryViewData] = useState<NotionCategoryViewPage[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [previewData, setPreviewData] = useState<NotionPage>({
     id: 'preview',
     created_time: new Date().toISOString(),
@@ -138,6 +142,34 @@ export default function UploadPage() {
     return properties
   }
 
+  // 获取分类数据
+  const fetchCategoryData = async () => {
+    try {
+      const response = await fetch('/api/v1/category', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      })
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      const categories = result.data
+      if (categories) {
+        // 转换分类数据为视图格式
+        const { transformCategoriesToViewData } = await import('@/utils/category')
+        const categoryViewData = transformCategoriesToViewData(categories, [])
+        setCategoryViewData(categoryViewData)
+      }
+    } catch (error) {
+      console.error('获取分类数据失败:', error)
+      // 不显示错误，因为分类不是必需的
+    }
+  }
+
   // 提取 fetchDatabaseDetails 为独立函数
   const fetchDatabaseDetails = async () => {
     setLoading(true)
@@ -192,6 +224,7 @@ export default function UploadPage() {
   useEffect(() => {
     if (status === 'authenticated') {
       fetchDatabaseDetails()
+      fetchCategoryData()
     }
   }, [status])
 
@@ -335,6 +368,28 @@ export default function UploadPage() {
       // 格式化 Notion 属性
       const notionProperties = formatNotionProperties(formData)
 
+      // 如果有选择的分类，添加到属性中
+      if (selectedCategories.length > 0) {
+        // 查找分类字段
+        const categoryKey = Object.keys(databaseDetails?.properties || {}).find(
+          (key) =>
+            key === 'cate' ||
+            databaseDetails?.properties[key].name.toLowerCase().includes('category') ||
+            databaseDetails?.properties[key].name.toLowerCase().includes('分类')
+        )
+
+        if (categoryKey && databaseDetails?.properties[categoryKey].type === 'relation') {
+          // relation 逻辑，直接用id数组
+          notionProperties[categoryKey] = {
+            relation: selectedCategories.map((id) => ({ id })),
+          }
+          console.log('分类字段处理[relation]:', {
+            categoryKey,
+            selectedCategories,
+          })
+        }
+      }
+
       // 构建请求体
       const requestBody = {
         parent: {
@@ -377,6 +432,14 @@ export default function UploadPage() {
       }
 
       setSuccess(true)
+
+      // 提交成功后刷新首页和分类页缓存
+      try {
+        await refreshHomeData()
+      } catch (error) {
+        console.error('刷新缓存失败:', error)
+      }
+
       // 重置表单
       const initialFormData: Record<string, any> = {}
       const initialSelectedOptions: Record<string, string[]> = {}
@@ -399,6 +462,7 @@ export default function UploadPage() {
       setCustomOptions(initialCustomOptions)
       setCustomInputs(initialCustomInputs)
       setShowCustomInput(initialShowCustomInput)
+      setSelectedCategories([])
       setIconUrl('')
       setCoverUrl('')
     } catch (err) {
@@ -510,8 +574,44 @@ export default function UploadPage() {
       }
     })
 
+    // 处理分类数据
+    if (selectedCategories.length > 0) {
+      const categoryNames = selectedCategories.map((categoryId) => {
+        // 查找二级分类
+        for (const primaryCat of categoryViewData) {
+          const secondaryCategory = primaryCat.children.find((child) => child.id === categoryId)
+          if (secondaryCategory) return `${primaryCat.name} > ${secondaryCategory.name}`
+        }
+
+        return categoryId
+      })
+
+      // 查找分类字段并添加到预览数据
+      const categoryKey = Object.keys(databaseDetails?.properties || {}).find(
+        (key) =>
+          key === 'cate' ||
+          databaseDetails?.properties[key].name.toLowerCase().includes('category') ||
+          databaseDetails?.properties[key].name.toLowerCase().includes('分类')
+      )
+
+      if (categoryKey) {
+        updatedPreviewData[categoryKey] = categoryNames.map((name) => ({
+          id: name,
+          name: name,
+        }))
+      }
+    }
+
     setPreviewData(updatedPreviewData)
-  }, [formData, selectedOptions, iconUrl, coverUrl, databaseDetails])
+  }, [
+    formData,
+    selectedOptions,
+    selectedCategories,
+    iconUrl,
+    coverUrl,
+    databaseDetails,
+    categoryViewData,
+  ])
 
   if (status === 'loading') {
     return <div>加载中...</div>
@@ -631,6 +731,18 @@ export default function UploadPage() {
           </div>
 
           <div className="space-y-3">
+            {/* 分类选择器 */}
+            {categoryViewData.length > 0 && (
+              <div className="space-y-1">
+                <Label className="text-sm">分类</Label>
+                <CategorySelector
+                  value={selectedCategories}
+                  onValueChange={setSelectedCategories}
+                  categoryViewData={categoryViewData}
+                  placeholder="选择分类"
+                />
+              </div>
+            )}
             {Object.entries(databaseDetails.properties).map(([key, property]) => {
               const propertyType = property.type
               if (propertyType === 'multi_select') {
